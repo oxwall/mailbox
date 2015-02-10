@@ -1,0 +1,47 @@
+{form name='configSaveForm'}
+
+<table class="ow_table_1 ow_form">
+    <tbody><tr class="ow_tr_first">
+        <th class="ow_name ow_txtleft" colspan="3">
+            <span class="ow_section_icon ow_ic_gear_wheel">{text key='mailbox+general_settings'}</span>
+        </th>
+    </tr>
+
+    <tr class="ow_alt1">
+        <td class="ow_label">{label name="active_mode_list"}</td>
+        <td class="ow_value">
+            {input name="active_mode_list"}
+        </td>
+        <td class="ow_desc ow_small"></td>
+    </tr>
+    {if $mailModeEnabled}
+    <tr class="ow_alt2">
+        <td class="ow_label">{label name="send_message_interval"}</td>
+        <td class="ow_value">
+            {input name="send_message_interval" style="width: 40px"} {text key='mailbox+settings_label_send_message_interval_seconds'}
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    {/if}
+{*
+    <tr class="ow_alt1" id="showAllMembersContainer" {if $selectedMode == 'mail'}style="display: none;"{/if}>
+        <td class="ow_label">{label name="show_all_members"}</td>
+        <td class="ow_value">
+            {input name="show_all_members"}
+        </td>
+        <td class="ow_desc ow_small">{desc name="show_all_members"}</td>
+    </tr>
+*}
+    {*<tr class="ow_alt1">
+        <td class="ow_label">{text key='mailbox+enable_attachments'}</td>
+        <td class="ow_value">
+            {input name='enableAttachments'}<br /> {error name='enableAttachments'}
+        </td>
+        <td class="ow_desc ow_small"></td>
+    </tr>*}
+    </tbody></table>
+<div class="clearfix ow_submit ow_smallmargin"><div class="ow_right">{submit name='save' class='ow_ic_save ow_positive'}</div></div>
+
+{/form}

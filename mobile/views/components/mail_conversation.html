@@ -1,0 +1,61 @@
+<div class="owm_mail_window" id="mailboxMailConversation">
+    <div class="owm_mail_info_wrap clearfix">
+        <div class="owm_mail_info" id="mailboxBackToConversations">
+            <div class="owm_mail_back"><a class="owm_nav_next" href="javascript://"></a></div>
+            <div class="owm_mail_name_block owm_padding">
+                <div class="owm_avatar">
+                    <a href="#"><img src="{$defaultAvatarUrl}" title="#" alt="#"></a>
+                </div>
+                <div class="owm_profile_online" style="display: none;" id="onlineStatusBlock"></div>
+                <div class="owm_mail_name"><a href="javascript://"><span></span></a></div>
+            </div>
+        </div>
+        <div class="owm_mail_subject_block owm_bg_color_1">
+            <div class="owm_mail_subject owm_padding" id="mailboxPreviewText"></div>
+            <!--<span class="owm_mail_theme_prefix">RE:</span>-->
+        </div>
+    </div>
+<div class="owm_align_center owm_padding" id="mailboxLoadHistoryBtn" style="display: none;"><div class="owm_info owm_box_padding owm_load_earlier">{text key="mailbox+load_earlier"}</div></div>
+<div class="owm_preloader" id="mailboxLoadHistoryPreloader"></div>
+<div class="owm_mail_block owm_std_margin_top" id="messageList"></div>
+    <div id="mailboxConversationFooter" style="position: absolute; width: 100%; bottom: 0px;">
+        {form name="newMailMessageForm" target="conversation-newmessage-submit-frame"}
+        <div class="owm_mail_input_wrap owm_field_wrap" id="newMessageForm">
+            {input name='newMessageText' class='invitation'}
+        </div>
+        <div class="owm_mail_submit clearfix owm_bg_color_3 comment_submit" id="newMessageSubmitForm">
+            <div class="owm_mail_btns owm_padding clearfix">
+                <div id="mailbox_att_btn_c" class="owm_mail_add_cont owm_float_left">
+                    <a href="javascript://" class="owm_mail_add_icon"><input accept="image/*" type="file" id="newmessage-mail-att-file" name="attachment"></a>
+                    <span class="owm_mail_add_name" id="newmessage-mail-att-file-prevew"><img style="height: 30px; display: none;" /><span></span></span>
+                </div>
+                <div class="owm_float_right owm_mail_btn" id="newmessage-mail-send-btn">{submit name='newMessageSendBtn'}</div>
+            </div>
+        </div>
+        {/form}
+    </div>
+</div>
+
+<div style="display: none">
+    <iframe name="conversation-newmessage-submit-frame"></iframe>
+</div>
+
+
+<div id="mailbox_mobile_conversation_prototypes" style="display: none;">
+    <div class="owm_mail_time" id="dialogTimeBlockPrototypeBlock">#</div>
+
+    <div class="owm_mail_attach" id="mailboxMailMessageAttachmentPrototypeBlock"><a href="javascript://"> <span class="owm_mail_attach_size">(...)</span><span class="owm_mail_attach_ico"></span></a></div>
+</div>
+
+<script type="text/template" id="dialogMailMessagePrototypeBlock">
+    <div class="owm_mail_msg_wrap clearfix">
+        <div class="owm_mail_msg">
+            <div class="owm_avatar">
+                <a href="<%= profileUrl %>"><img src="<%= avatarUrl %>" title="<%= displayName %>" alt="<%= displayName %>"></a>
+            </div>
+            <div class="owm_mail_msg_cont">
+                <div class="owm_mail_txt"><%= text %></div>
+            </div>
+        </div>
+    </div>
+</script>

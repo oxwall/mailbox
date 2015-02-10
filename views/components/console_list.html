@@ -1,0 +1,10 @@
+<div class="ow_console_list_wrapper OW_ConsoleListContainer">
+    <div class="ow_nocontent OW_ConsoleListNoContent">{text key='base+empty_list'}</div>
+    <ul class="ow_console_list OW_ConsoleList"></ul>
+    <div class="ow_preloader_content ow_console_list_preloader OW_ConsoleListPreloader" style="visibility: hidden"></div>
+</div>
+
+<div class="{if $mailModeEnabled && $isAuthorizedSendMessage}ow_console_messages_btns{else}ow_console_messages_btn{/if} clearfix">
+    <div class="ow_console_messages_viewall"><a href="{$viewAllUrl}">{text key="mailbox+view_all"}</a></div>
+    {if $mailModeEnabled && $isAuthorizedSendMessage}<div class="ow_console_messages_send"><a href="javascript://" id="mailboxConsoleListSendMessageBtn" >{text key="mailbox+send_message"}</a></div>{/if}
+</div>

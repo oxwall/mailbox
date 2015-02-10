@@ -1,0 +1,85 @@
+{style}
+{literal}
+.owm_mchat_convers_list, .owm_mchat_user_list, .owm_sidebar_search_active .owm_mchat_user_list.active, .owm_sidebar_search_active .owm_mchat_convers_list.active {
+    display: none;
+}
+.owm_mchat_convers_list.active, .owm_mchat_user_list.active {
+    display: block;
+}
+{/literal}
+{/style}
+
+<div class="owm_mchat_block">
+    <div class="owm_sidebar_top_block">
+        <div class="owm_sidebar_search_block_wrap clearfix owm_padding owm_bg_color_2">            
+            <div class="owm_sidebar_search_close"><a href="javascript://" class="owm_close_btn" id="mailboxSidebarCloseSearchBtn"></a></div>
+            <div class="owm_sidebar_search_input_wrap"><input type="text" value="{text key='mailbox+label_invitation_conversation_search'}" class="owm_sidebar_search_input invitation" name="mailbox_search_users_btn" id="mailboxSidebarSearchTextField" /></div>
+        </div>
+        <div class="owm_sidebar_sub_menu_wrap clearfix owm_padding owm_bg_color_2 owm_small_margin_bottom">
+            <div class="owm_sidebar_search"><a href="javascript://" class="owm_sidebar_search_ico" id="mailboxSidebarSearchBtn"></a></div>     
+            <ul class="owm_sidebar_sub_menu clearfix" id="mailboxSidebarMenu">
+                <li class="owm_sidebar_sub_menu_item" data-mode="conversations" id="menuItem_conversations">
+                    <a class="owm_sidebar_sub_menu_item_url" href="javascript://">
+                        <span class="owm_sidebar_sub_menu_item_txt">{text key="mailbox+conversations"}</span>
+                    </a>
+                </li>
+                <li class="owm_sidebar_sub_menu_item" data-mode="userlist" id="menuItem_userlist">
+                    <a class="owm_sidebar_sub_menu_item_url" href="javascript://">
+                        <span class="owm_sidebar_sub_menu_item_txt">{text key="mailbox+userlist"}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="owm_user_list owm_mchat_convers_list owm_std_margin_bottom owm_convers_list" id="mailboxSidebarItemListConversations">
+        <div class="owm_convers_list_cont"></div>
+        <ul class="owm_sidebar_msg_list" id="mailboxConversationsLoadMoreBlock">
+            <li class="owm_sidebar_msg_item owm_sidebar_msg_load_more">
+                <a href="javascript://" id="mailboxConversationsLoadMore" class="owm_sidebar_load_more"></a>
+            </li>
+        </ul>
+        <div style="visibility: hidden" class="owm_user_list_preloader owm_preloader" id="mailboxSidebarItemListConversationsPreloader"></div>
+    </div>
+
+    <div class="owm_user_list owm_mchat_user_list owm_std_margin_bottom owm_convers_list" id="mailboxSidebarItemListUserlist">
+        <div class="owm_convers_list_cont"></div>
+        <ul class="owm_sidebar_msg_list" id="mailboxUsersLoadMoreBlock">
+            <li class="owm_sidebar_msg_item owm_sidebar_msg_load_more">
+                <a href="javascript://" id="mailboxUsersLoadMore" class="owm_sidebar_load_more"></a>
+            </li>
+        </ul>
+        <div style="visibility: hidden" class="owm_user_list_preloader owm_preloader" id="mailboxSidebarItemListUserlistPreloader"></div>
+    </div>
+
+    <div class="owm_user_list owm_mchat_search_list owm_std_margin_bottom" id="mailboxSidebarSearchItemList">
+        <div class="owm_user_not_found owm_padding owm_align_center" style="display: none;">{text key="mailbox+user_not_found"}</div>
+        <div class="owm_convers_list_cont"></div>
+    </div>
+</div>
+
+<script type="text/template"  id="mailboxSidebarItemPrototype" >
+<div class="owm_content_list_item">
+    <div class="owm_user_list_item">
+        <div class="owm_avatar">
+            <a href="javascript://" href="<%= profileUrl %>"><img src="<%= avatarUrl %>" /><span style="background-color: rgb(255, 152, 0)" class="owm_avatar_label"><%= avatarLabel %></span></a>
+        </div>
+        <div class="owm_sidebar_convers_status_ico" id="mailboxSidebarItemConversationsMode"></div>
+        <div class="owm_user_list_name"><span id="mailboxSidebarConversationsItemDisplayName"><%= displayName %></span></div>
+        <div class="owm_sidebar_convers_mail_theme" id="mailboxSidebarConversationsItemSubject"><%= previewText %></div>
+        <div class="owm_profile_online" id="mailboxSidebarConversationsItemOnlineStatus" style="display: none;"></div>
+    </div>
+</div>
+</script>
+
+<script type="text/template"  id="mailboxSidebarUserItemPrototype" >
+<div class="owm_content_list_item">
+    <div class="owm_user_list_item">
+        <div class="owm_avatar">
+            <a href="javascript://" href="<%= profileUrl %>"><img src="<%= avatarUrl %>" /><span style="background-color: rgb(255, 152, 0)" class="owm_avatar_label"><%= avatarLabel %></span></a>
+        </div>
+        <div class="owm_user_list_name"><span id="mailboxSidebarConversationsItemDisplayName"><%= displayName %></span></div>
+        <div class="owm_profile_online" id="mailboxSidebarConversationsItemOnlineStatus" style="display: none;"></div>
+    </div>
+</div>
+</script>

@@ -1,0 +1,113 @@
+{if $useChat == 'promoted'}
+<div class="ow_chat_cont ow_hidden" id="chatPromotionBlock">
+    <div class="ow_chat_wrap">
+        <div class="ow_chat">
+            <div class="ow_puller"></div>
+            <div class="ow_chat_block_wrap ow_border">
+                <div class="ow_chat_block ow_active">
+                    <div class="ow_chat_block_main">
+                        <div class="ow_top_panel">
+                            <div class="ow_count_block">
+                                <a href="javascript://" class="btn2_panel">
+                                    <span class="ow_count_txt">{text key="mailbox+chat"}</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ow_chat_in_block">
+                            <div class="ow_chat_list showOnlineOnly ow_scrollable" style="width: 245px;">
+                                <div style="display: table; height: 100%; width: 100%;">
+                                    <div style="padding: 0 8px; text-align: center; font-size: 12px; display: table-cell; vertical-align: middle;">
+                                        {$msg}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ow_bot_panel">
+                        <div class="ow_count_block">
+                            <a href="javascript://" class="btn2_panel"><span class="ow_count_txt">{text key="mailbox+chat"}</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}
+
+{if $useChat == 'available'}
+<div class="ow_chat_cont">
+    <div class="ow_chat_wrap">
+        <div class="ow_chat">
+            <div class="ow_puller"></div>
+            <div class="ow_chat_block_wrap ow_border">
+                <div class="ow_chat_block">
+                    {form name='im_user_settings_form'}
+                    <div class="ow_chat_block_main">
+                        <div class="ow_top_panel">
+                            <div class="ow_count_block">
+                                <a href="javascript://" class="btn2_panel">
+                                    <span class="ow_btn_sort_users" id="mailboxSortUsersPreference"><span class="ow_btn_sort_online"></span></span>
+                                    <span class="ow_count_txt">{text key="mailbox+chat"}</span>
+                                <span class="ow_count_wrap">
+									<span class="ow_count_bg totalUserOnlineCountBackground">
+										<span class="ow_count totalUserOnlineCount">0</span>
+									</span>
+								</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ow_chat_in_block">
+                            <div class="ow_chat_search">
+                                <span>{input name='im_find_contact' id="im_find_contact"}</span>
+                            </div>
+
+                            <div class="ow_chat_list" style="width: 245px;">
+                                <div class="ow_chat_preloader"></div>
+                                <ul></ul>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="ow_bot_panel">
+                        <div class="ow_count_block">
+                            <a href="javascript://" class="btn2_panel"><span class="ow_count_txt">{text key="mailbox+chat"}</span>
+                                <span class="ow_count_wrap">
+                                    <span class="ow_count_bg totalUserOnlineCountBackground">
+                                        <span class="ow_count totalUserOnlineCount">0</span>
+                                    </span>
+                                </span>
+                            </a>
+                        </div>
+                        <a href="javascript://" class="ow_btn_sound" id="mailboxSoundPreference"><span></span></a>
+                    </div>
+                    {/form}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ow_chat_prototypes" style="display: none;">
+
+    <div id="ow_chat_list_proto">
+        <ul>
+            <li>
+                <a href="javascript://" class="clearfix ow_chat_item">
+                    <span class="ow_chat_item_photo_wrap">
+                        <span class="ow_chat_item_photo">
+                            <span class="ow_chat_in_item_photo"><img src="{$avatar_proto_data.src}"  width="32px" height="32px" alt="" id="contactItemAvatarUrl" /></span>
+                        </span>
+                    </span>
+                    <span class="ow_chat_item_author">
+                        <span class="ow_chat_in_item_author" id="contactItemDisplayName"></span>
+                    </span>
+                    <span class="ow_count_wrap ow_count_active" style="display: none;"><span class="ow_count">0</span></span>
+                    <div class="ow_chat_status" id="contactProfileStatus"></div>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{/if}

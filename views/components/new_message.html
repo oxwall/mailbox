@@ -1,0 +1,69 @@
+<!-- ----------------------MAILBOX SEND NEW MESSAGE--------------------------- -->
+<div class="ow_chat_dialog ow_mailchat_new_message " id="newMessageWindow">
+    <div class="ow_chat_block ow_mailchat_select_user_wrap">
+        {form name="mailbox-new-message-form"}
+        <!-- ---- NEW MESSAGE CAP ---->
+        <!-- ----------------------- SELECTED USER CAP --------------------------- -->
+        <div class="ow_mailchat_selected_user ow_author_block clearfix">
+            <div aria-disabled="false" style="position: absolute;" class="ow_puller ui-draggable"></div>
+            <a href="javascript://" target="_blank" class="ow_chat_in_item_author_href ow_chat_in_item_photo_wrap" id="userFieldProfileLink">
+                <span class="ow_chat_in_item_photo"><img title="" alt="" src="{$defaultAvatarUrl}" height="32px" width="32px" id="userFieldAvatar"></span>
+            </a>
+            <a href="javascript://" class="ow_chat_item_author_wrap" id="newMessageWindowMinimizeBtn">
+                <span class="ow_chat_item_author">
+                    <span class="ow_chat_message_to">{text key='mailbox+new_message_to'}</span>
+                    <span class="ow_chat_in_item_author" id="userFieldDisplayname"></span>
+                </span>
+                <span class="ow_mailchat_delete_receiver" id="userFieldDeleteBtn"></span>
+            </a>
+            <a class="ow_btn_close" id="newMessageWindowCloseBtn" href="javascript://"><span></span></a>
+        </div>
+        <!-- ----------------------- UNSELECTED USER CAP --------------------------- -->
+        <div class="ow_mailchat_select_user ow_author_block">
+            <div aria-disabled="false" style="position: absolute;" class="ow_puller ui-draggable"></div>
+            {input name='opponentId'}
+            <a href="javascript://" class="ow_chat_minimize_btn" id="newMessageWindowUnselectedCapMinimizeBtn"></a>
+            <a class="ow_btn_close" id="newMessageWindowUnselectedCapCloseBtn" href="javascript://"><span></span></a>
+            <div class="ow_mailchat_new_message_title">{text key="mailbox+new_message_title"}</div>
+        </div>
+        <!-- ----------------------- END OF USER CAP --------------------------- -->
+        <!-- ---- END OF NEW MESSAGE CAP ---->
+        <div class="ow_chat_subject_block">
+            {input name='subject' class="newMessageWindowSubjectInputControl"}
+        </div>
+        <div class="ow_chat_mailchat_inputarea">
+            {input name='message' class="newMessageWindowMessageInputControl"}
+            {if $enableAttachments}
+            <div class="ow_file_attachment_preview clearfix">
+            {$attachments}
+            </div>
+            {/if}
+            <div class="ow_file_attachment_preview clearfix" id="newMessageWindowEmbedAttachmentsBlock"></div>
+            <div class="ow_chat_mailchat_buttons clearfix">
+                <span class="ow_attachment_btn">
+                    {submit name="send"}
+                </span>
+                {if $enableAttachments}
+                <span class="ow_attachment_icons">
+                    <div class="ow_attachments">
+                        <span class="buttons clearfix">
+                            <a class="attach" href="javascript://" title="Attach" id="newMessageWindowAttachmentsBtn"></a>
+                        </span>
+                    </div>
+                </span>
+                {/if}
+            </div>
+            {*<div class="captcha" {if $displayCaptcha==false} style='display:none;' {/if}>
+                <div class="ow_center">
+                    <div style="padding:10px;">{text key='mailbox+please_enter_captcha'}</div>
+                </div>
+                <div>
+                    {input name="captcha"}<br/>{error name="captcha"}
+                </div>
+            </div>*}
+        </div>
+
+        {/form}
+    </div>
+</div>
+<!-- -----------------------END OF SEND NEW MESSAGE---------------------------- -->

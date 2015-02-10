@@ -1,0 +1,33 @@
+{form name='composeMessageForm'}
+<div class="owm_mail_compose_window" id="composeMessageCmp">
+    <div class="owm_mail_info_wrap clearfix">
+        <div class="owm_mail_info" id="mailboxBackToConversations">
+            <div class="owm_mail_back"><a class="owm_nav_next" href="javascript://"></a></div>
+            <div class="owm_mail_name_block owm_padding">
+                <div class="owm_avatar">
+                    <a href="{$profileUrl}"><img src="{$avatarUrl}" title="{$displayName}" alt="{$displayName}"></a>
+                </div>
+                <div class="owm_profile_online" style="{if $status == 'offline'}display: none;{/if}" id="onlineStatusBlock"></div>
+                <div class="owm_mail_name"><a href="{$profileUrl}"><span>{$displayName}</span></a></div>
+            </div>
+        </div>
+        <div class="owm_mail_subject_block">
+            <div class="owm_mail_subject owm_mail_subject_invitation owm_padding">
+                {input name='subject'}
+            </div>
+        </div>
+    </div>
+    <div class="owm_mail_block owm_mail_compose">
+        <div class="owm_field_wrap">{input name='message'}</div>
+    </div>
+    <div class="owm_mail_compose_submit clearfix owm_bg_color_3 comment_submit" id="newMessageForm">
+        <div class="owm_mail_btns owm_padding clearfix">
+            <div class="owm_float_right owm_mail_btn" id="newmessage-mail-send-btn">{submit name='sendBtn'}</div>
+            <div id="mailbox_att_btn_c" class="owm_mail_add_cont owm_float_left">
+                <a href="javascript://" class="owm_mail_add_icon"><input accept="image/*" type="file" id="newmessage-mail-att-file" name="attachment"></a>
+                <span class="owm_mail_add_name" id="newmessage-mail-att-file-prevew"><img style="height: 30px; display: none;" /><span></span></span>
+            </div>
+       </div>
+    </div>
+</div>
+{/form}

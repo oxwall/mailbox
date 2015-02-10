@@ -1,0 +1,11 @@
+{if $mailModeEnabled && $isAuthorizedSendMessage}
+<div class="ow_content_menu_wrap clearfix">
+    <div class="ow_right">
+        {decorator name="button" type="button" class="ow_ic_add" id="newMessageBtn" langLabel='mailbox+label_btn_new_message'}
+    </div>
+</div>
+{/if}
+<div class="ow_mailbox_table ow_alt1 clearfix {if !$mailModeEnabled || !$chatModeEnabled}ow_mailbox_table_single{/if}" id="messagesContainerControl">
+    {$conversationList}
+    {$conversationContainer}
+</div>

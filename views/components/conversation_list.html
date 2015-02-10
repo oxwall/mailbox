@@ -1,0 +1,64 @@
+<div class="ow_mailbox_left {if $singleMode}ow_mailbox_single_mode{/if} ow_mailbox_left_loading" id="conversationListControl">
+    {form name='conversationSearchForm'}
+    <div class="ow_mailbox_search">
+        {input name='conversation_search' id="conversation_search"}
+    </div>
+    {/form}
+    <div class="ow_mailbox_conv_options active ow_small ow_alt2 clearfix" id="openBulkOptionsBtn">
+        <div class="ow_mailbox_conv_options_inner">
+            <span class="ow_mailbox_conv_options_label" >{text key='mailbox+bulk_options'}</span>
+            <input type="checkbox" id="mailboxConvOptionSelectAll"> <span class="ow_mailbox_conv_options_checklab">{text key='mailbox+check_all'}</span>
+            <div class="ow_context_action_block clearfix ow_context_action_value_block ow_profile_toolbar_group">
+                <div class="ow_context_action">
+                    <a href="javascript://" class="ow_context_action_value" id="mailboxConvOpenActions">{text key='mailbox+actions'}</a>
+                    <span class="ow_context_more"></span>
+                    <div style="opacity: 1; top: 18px;" class="ow_tooltip ow_small ow_tooltip_top_right ow_hidden" id="mailboxConvOpenActionsContainer">
+                        <div class="ow_tooltip_tail">
+                            <span></span>
+                        </div>
+                        <div class="ow_tooltip_body">
+                            <ul class="ow_context_action_list ow_border">
+                                <li><a href="javascript://" id="mailboxConvActionMarkUnread">{text key='mailbox+bulk_mark_unread_btn'}</a></li>
+                                <li><a href="javascript://" id="mailboxConvActionMarkRead">{text key='mailbox+bulk_mark_as_read_btn'}</a></li>
+                                <li><a href="javascript://"  id="mailboxConvActionDelete" class="ow_mild_red">{text key='mailbox+delete_conversation_title'}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="javascript://" id="closeBulkOptionsBtn" class="ow_miniic_delete">
+            </a>
+        </div>
+    </div>
+    <div id="conversationItemListWrapper">
+        <div class="ow_mailbox_left_body" id="conversationItemListContainer">
+            <div id="conversationItemListSub"><!-- list of conversations will be loaded here --></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/template" id="conversationListNoContentPrototypeBlock">
+    <div class="ow_mailbox_no_content">{text key="mailbox+conversation_item_list_empty"}</div>
+</script>
+
+<script type="text/template" id="conversationItemPrototypeBlock">
+    <div class="ow_mailbox_convers_info clearfix">
+        <input type="checkbox" class="ow_mailbox_conv_option" id="conversation_<%= conversationId %>">
+        <div class="ow_mailbox_avatar">
+            <div class="ow_avatar">
+                <a id="conversationItemAvatarProfileUrl"><img src="<%= avatarUrl %>" alt="" title="<%= shortUserData %>" style="max-width: 100%;" id="conversationItemAvatarUrl"></a>
+            </div>
+        </div>
+        <div class="ow_mailbox_convers_info_body">
+            <div class="ow_mailbox_convers_info_string ow_small">
+                <a id="conversationItemProfileUrl"><b><%= displayName %></b></a><div class="ow_mailbox_convers_info_date ow_small" id="conversationItemDateTime"><%= dateLabel %></div>
+            </div>
+            <div class="ow_mailbox_convers_info_content ow_small clearfix">
+                <div class="ow_left"> <span class="ic_reply" id="conversationItemHasReply" style="display: <% if (reply){ %> none<% } else { %> inline-block <% } %>;"></span> <span class="ow_mailbox_convers_preview" id="conversationItemPreviewText"><%= previewText %></span></div>
+                <div class="ow_mailbox_convers_count_new"></div>
+                <div class="ow_mailbox_convers_info_attach"></div>
+            </div>
+        </div>
+    </div>
+</script>

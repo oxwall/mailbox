@@ -66,7 +66,8 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('base.ping', array($this, 'onPing'));
         OW::getEventManager()->bind('base.ping.notifications', array($this, 'onApiPing'), 1);
         OW::getEventManager()->bind('mailbox.ping', array($this, 'onPing'));
-        
+        OW::getEventManager()->bind('mailbox.mark_unread', array($this, 'onMarkUnread'));
+        OW::getEventManager()->bind('mailbox.delete_conversation', array($this, 'onDeleteConversation'));
 
         if (OW::getPluginManager()->isPluginActive('ajaxim'))
         {
@@ -1292,6 +1293,16 @@ class MAILBOX_CLASS_EventHandler
         {
             MAILBOX_BOL_ConversationService::getInstance()->resetUserLastData($params['userId']);
         }
+    }
+
+    public function onMarkUnread( OW_Event $event )
+    {
+        $params = $event->getParams();
+    }
+
+    public function onDeleteConversation( OW_Event $event )
+    {
+        $params = $event->getParams();
     }
 }
 

@@ -1687,6 +1687,142 @@ final class MAILBOX_BOL_ConversationService
         return $convInfoList;
     }
 
+    public function getConversationItemByConversationIdListForApi($conversationItemList)
+    {
+        $userId = OW::getUser()->getId();
+        $convInfoList = array();
+
+        $userIdList = array();
+        $conversationIdList = array();
+        foreach($conversationItemList as $conversation)
+        {
+            $conversationIdList[] = (int)$conversation['id'];
+
+            if ($conversation['interlocutorId'] == $userId)
+            {
+                $opponentId = $conversation['initiatorId'];
+            }
+            else
+            {
+                $opponentId = $conversation['interlocutorId'];
+            }
+
+            if (!in_array($opponentId, $userIdList))
+            {
+                $userIdList[] = $opponentId;
+            }
+        }
+
+        $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars($userIdList, true, false, true, true);
+        $userNameByUserIdList = BOL_UserService::getInstance()->getUserNamesForList($userIdList);
+        $unreadMessagesCountByConversationIdList = $this->countUnreadMessagesForConversationList($conversationIdList, $userId);
+        $conversationsWithAttachments = $this->getConversationsWithAttachmentFromConversationList($conversationIdList);
+
+        foreach($conversationItemList as $conversation)
+        {
+            $conversationId = (int)$conversation['id'];
+            $mode = $conversation['subject'] == self::CHAT_CONVERSATION_SUBJECT ? 'chat' : 'mail';
+
+            $conversationRead = 0;
+            $conversationHasReply = false;
+
+            switch ( $userId )
+            {
+                case $conversation['initiatorId']:
+
+                    $opponentId = $conversation['interlocutorId'];
+//                    $conversationHasReply = $conversation['interlocutorMessageId'] != 0 ? true : false;
+
+                    if ( (int) $conversation['read'] & MAILBOX_BOL_ConversationDao::READ_INITIATOR )
+                    {
+                        $conversationRead = 1;
+                    }
+
+                    break;
+
+                case $conversation['interlocutorId']:
+
+                    $opponentId = $conversation['initiatorId'];
+//                    $conversationHasReply = $conversation['initiatorMessageId'] != 0 ? true : false;
+
+                    if ( (int) $conversation['read'] & MAILBOX_BOL_ConversationDao::READ_INTERLOCUTOR )
+                    {
+                        $conversationRead = 1;
+                    }
+
+                    break;
+            }
+
+//            pv($conversation);
+
+            switch($userId)
+            {
+                case $conversation['lastMessageSenderId']:
+                    $conversationHasReply = false;
+                    break;
+
+                case $conversation['lastMessageRecipientId']:
+                    $conversationHasReply = true;
+                    break;
+            }
+
+            $conversation['opponentId'] = $opponentId;
+            $conversation['conversationRead'] = $conversationRead;
+            $conversation['mode'] = $mode;
+
+            $profileDisplayname = empty($avatarData[$opponentId]['title']) ? $userNameByUserIdList[$opponentId] : $avatarData[$opponentId]['title'];
+//            $profileUrl = $avatarData[$opponentId]['url'];
+            $avatarUrl = $avatarData[$opponentId]['src'];
+            $convDate = empty($conversation['timeStamp']) ? '' : UTIL_DateTime::formatDate((int)$conversation['timeStamp'], true);
+            $convPreview = $this->getConversationPreviewText($conversation);
+
+            $item = array();
+
+            $item['conversationId'] = $conversationId;
+            $item['opponentId'] = (int)$opponentId;
+            $item['mode'] = $mode;
+            $item['conversationRead'] = (int)$conversationRead;
+//            $item['profileUrl'] = $profileUrl;
+            $item['avatarUrl'] = $avatarUrl;
+            $item['avatarLabel'] = !empty($avatarData[$opponentId]) ? mb_substr($avatarData[$opponentId]['label'], 0, 1) : null;
+            $item['displayName'] = $profileDisplayname;
+            $item['dateLabel'] = $convDate;
+            $item['previewText'] = $convPreview;
+            $item['lastMessageTimestamp'] = (int)$conversation['timeStamp'];
+            $item['reply'] = $conversationHasReply;
+            $item['newMessageCount'] = array_key_exists($conversationId, $unreadMessagesCountByConversationIdList) ? $unreadMessagesCountByConversationIdList[$conversationId] : 0;
+            $item['hasAttachment'] = $conversationsWithAttachments[$conversationId];
+
+            $shortUserData = $this->getFields(array($opponentId));
+            $item['shortUserData'] = $shortUserData[$opponentId];
+
+            if ( (int)$conversation['initiatorId'] == OW::getUser()->getId() )
+            {
+                $item['conversationViewed'] = (bool)((int)$conversation['viewed'] & MAILBOX_BOL_ConversationDao::VIEW_INITIATOR);
+            }
+
+            if ( (int)$conversation['interlocutorId'] == OW::getUser()->getId() )
+            {
+                $item['conversationViewed'] = (bool)((int)$conversation['viewed'] & MAILBOX_BOL_ConversationDao::VIEW_INTERLOCUTOR);
+            }
+
+//            if ($mode == 'chat')
+//            {
+//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
+//            }
+//
+//            if ($mode == 'mail')
+//            {
+//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_mail_conversation', array('convId'=>$conversationId));
+//            }
+
+            $convInfoList[] = $item;
+        }
+
+
+        return $convInfoList;
+    }
+
     /**
      * @param $messageId
      * @return MAILBOX_BOL_Message
@@ -2825,7 +2961,7 @@ final class MAILBOX_BOL_ConversationService
                 $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['initiatorMessageWasAuthorized'];
         }
 
-        $data = $this->getConversationItemByConversationIdList( $conversationItemList );
+        $data = $this->getConversationItemByConversationIdListForApi( $conversationItemList );
 
         return $data;
     }
@@ -3083,73 +3219,77 @@ final class MAILBOX_BOL_ConversationService
 
     public function getChatUserList( $userId, $from = 0, $count = 10 )
     {
-        $data = array();
-        $list = array();
+        $conversationList = $this->getConversationListByUserId(OW::getUser()->getId(), $from, $count);
 
-        $userWithCorrespondenceIdList = $this->getUserListWithCorrespondence();
+        return $conversationList;
 
-        if (OW::getPluginManager()->isPluginActive('winks'))
-        {
-            $winks = WINKS_BOL_Service::getInstance()->findWinkList( $userId, $from, $count );
-            foreach ($winks as $wink)
-            {
-                if ($wink->userId == $userId)
-                {
-                    continue;
-                }
-
-                if ($wink->status == 'wait')
-                {
-                    if (!in_array($wink->userId, $userWithCorrespondenceIdList))
-                    {
-                        $userWithCorrespondenceIdList[] = $wink->userId;
-                    }
-                }
-            }
-        }
-
-        if (empty($userWithCorrespondenceIdList))
-        {
-            return array();
-        }
-        foreach($userWithCorrespondenceIdList as $id)
-        {
-            $data[$id] = $this->getShortUserInfo($id);
-        }
-
-        $idList = array();
-        $viewedMap = array();
-        $timeMap = array();
-        $timeStamps = array();
-        foreach ( $data as $item )
-        {
-            $idList[] = $item["userId"];
-            $viewedMap[$item["userId"]] = $item["conversationRead"];
-            $timeMap[$item["userId"]] = $item["timeStamp"] > 0 ? UTIL_DateTime::formatDate($item["timeStamp"]) : "";
-            $timeStamps[$item["userId"]] = $item["timeStamp"] > 0 ? $item["timeStamp"] : 0;
-        }
-
-        $userService = BOL_UserService::getInstance();
-        $avatarList = BOL_AvatarService::getInstance()->getDataForUserAvatars($idList, true, false);
-        $onlineMap = BOL_UserService::getInstance()->findOnlineStatusForUserList($idList);
-
-        foreach ( $avatarList as $opponentId => $user )
-        {
-            $winkReceived = OW::getEventManager()->call('winks.isWinkSent', array('userId'=>$opponentId, 'partnerId'=>$userId));
-
-            $list[] = array(
-                "userId" => $opponentId,
-                "displayName" => !empty($user["title"]) ? $user["title"] : $userService->getUserName($opponentId),
-                "avatarUrl" => $user["src"],
-                "viewed" => $viewedMap[$opponentId],
-                "online" => $onlineMap[$opponentId],
-                "time" => $timeMap[$opponentId],
-                "lastMessageTimestamp" => $timeStamps[$opponentId],
-                'winkReceived' => (int)$winkReceived
-            );
-        }
-
-        return $list;
+//        $data = array();
+//        $list = array();
+//
+//        $userWithCorrespondenceIdList = $this->getUserListWithCorrespondence();
+//
+//        if (OW::getPluginManager()->isPluginActive('winks'))
+//        {
+//            $winks = WINKS_BOL_Service::getInstance()->findWinkList( $userId, $from, $count );
+//            foreach ($winks as $wink)
+//            {
+//                if ($wink->userId == $userId)
+//                {
+//                    continue;
+//                }
+//
+//                if ($wink->status == 'wait')
+//                {
+//                    if (!in_array($wink->userId, $userWithCorrespondenceIdList))
+//                    {
+//                        $userWithCorrespondenceIdList[] = $wink->userId;
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (empty($userWithCorrespondenceIdList))
+//        {
+//            return array();
+//        }
+//        foreach($userWithCorrespondenceIdList as $id)
+//        {
+//            $data[$id] = $this->getShortUserInfo($id);
+//        }
+//
+//        $idList = array();
+//        $viewedMap = array();
+//        $timeMap = array();
+//        $timeStamps = array();
+//        foreach ( $data as $item )
+//        {
+//            $idList[] = $item["userId"];
+//            $viewedMap[$item["userId"]] = $item["conversationRead"];
+//            $timeMap[$item["userId"]] = $item["timeStamp"] > 0 ? UTIL_DateTime::formatDate($item["timeStamp"]) : "";
+//            $timeStamps[$item["userId"]] = $item["timeStamp"] > 0 ? $item["timeStamp"] : 0;
+//        }
+//
+//        $userService = BOL_UserService::getInstance();
+//        $avatarList = BOL_AvatarService::getInstance()->getDataForUserAvatars($idList, true, false);
+//        $onlineMap = BOL_UserService::getInstance()->findOnlineStatusForUserList($idList);
+//
+//        foreach ( $avatarList as $opponentId => $user )
+//        {
+//            $winkReceived = OW::getEventManager()->call('winks.isWinkSent', array('userId'=>$opponentId, 'partnerId'=>$userId));
+//
+//            $list[] = array(
+//                "userId" => $opponentId,
+//                "displayName" => !empty($user["title"]) ? $user["title"] : $userService->getUserName($opponentId),
+//                "avatarUrl" => $user["src"],
+//                "viewed" => $viewedMap[$opponentId],
+//                "online" => $onlineMap[$opponentId],
+//                "time" => $timeMap[$opponentId],
+//                "lastMessageTimestamp" => $timeStamps[$opponentId],
+//                'winkReceived' => (int)$winkReceived
+//            );
+//        }
+//
+//        return $list;
     }
 
     public function getChatNewMessages($userId, $opponentId, $lastMessageTimestamp)

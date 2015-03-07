@@ -68,6 +68,8 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('mailbox.ping', array($this, 'onPing'));
         OW::getEventManager()->bind('mailbox.mark_unread', array($this, 'onMarkUnread'));
         OW::getEventManager()->bind('mailbox.delete_conversation', array($this, 'onDeleteConversation'));
+        OW::getEventManager()->bind('mailbox.create_conversation', array($this, 'onCreateConversation'));
+        OW::getEventManager()->bind('mailbox.authorize_action', array($this, 'onAuthorizeAction'));
 
         if (OW::getPluginManager()->isPluginActive('ajaxim'))
         {
@@ -98,10 +100,12 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('mailbox.get_unread_message_count', array($this, 'getUnreadMessageCount'));
         OW::getEventManager()->bind('mailbox.get_chat_user_list', array($this, 'getChatUserList'));
         OW::getEventManager()->bind('mailbox.post_message', array($this, 'postMessage'));
+        OW::getEventManager()->bind('mailbox.post_reply_message', array($this, 'postReplyMessage'));
         OW::getEventManager()->bind('mailbox.get_new_messages', array($this, 'getNewMessages'));
         OW::getEventManager()->bind('mailbox.get_messages', array($this, 'getMessages'));
         OW::getEventManager()->bind('mailbox.get_history', array($this, 'getHistory'));
         OW::getEventManager()->bind('mailbox.show_send_message_button', array($this, 'showSendMessageButton'));
+        OW::getEventManager()->bind('mailbox.get_active_mode_list', array($this, 'onGetActiveModeList'));
         OW::getEventManager()->bind('friends.request-accepted', array($this, 'onFriendRequestAccepted'));
         OW::getEventManager()->bind(OW_EventManager::ON_USER_LOGIN, array($this, 'resetAllUsersLastData'));
         OW::getEventManager()->bind(OW_EventManager::ON_USER_UNREGISTER, array($this, 'onUserUnregister'));
@@ -1087,8 +1091,20 @@ class MAILBOX_CLASS_EventHandler
         $params = $event->getParams();
         $userId = $params['userId'];
 
-        $list = $this->service->getChatUserList($userId);
+        $from = 0;
+        $count = 10;
 
+        if (isset($params['from']))
+        {
+            $from = (int)$params['from'];
+        }
+
+        if (isset($params['count']))
+        {
+            $count = (int)$params['count'];
+        }
+
+        $list = $this->service->getChatUserList($userId, $from, $count);
         $event->setData( $list );
 
         return $list;
@@ -1099,13 +1115,6 @@ class MAILBOX_CLASS_EventHandler
        $params = $event->getParams();
 
         if (empty($params['mode']) && empty($params['conversationId']))
-        {
-            $data = array('error'=>true, 'message'=>'Undefined conversation');
-            $event->setData($data);
-            return $data;
-        }
-
-        if (empty($params['userId']) || empty($params['opponentId']))
         {
             $data = array('error'=>true, 'message'=>'Undefined conversation');
             $event->setData($data);
@@ -1193,6 +1202,75 @@ class MAILBOX_CLASS_EventHandler
         }
     }
 
+    public function postReplyMessage( OW_Event $event )
+    {
+       $params = $event->getParams();
+
+        if (empty($params['mode']) && empty($params['conversationId']))
+        {
+            $data = array('error'=>true, 'message'=>'Undefined conversation');
+            $event->setData($data);
+            return $data;
+        }
+
+        $checkResult = $this->service->checkUser($params['userId'], $params['opponentId']);
+
+        if ($checkResult['isSuspended'])
+        {
+            $data = array('error'=>true, 'message'=>$checkResult['suspendReasonMessage'], 'suspendReason'=>$checkResult['suspendReason']);
+
+            $event->setData($data);
+            return $data;
+        }
+
+        $conversationId = $params['conversationId'];
+        $actionName = 'reply_to_message';
+
+        $isAuthorized = OW::getUser()->isAuthorized('mailbox', $actionName);
+        if ( !$isAuthorized )
+        {
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
+            if ($status['status'] == BOL_AuthorizationService::STATUS_PROMOTED)
+            {
+                $data = array('error' => true, 'message'=>strip_tags($status['msg']));
+            }
+            else
+            {
+                if ($status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE)
+                {
+                    $language = OW::getLanguage();
+                    $data = array('error' => true, 'message'=>$language->text('mailbox', $actionName.'_permission_denied'));
+                }
+            }
+            $event->setData($data);
+            return $data;
+        }
+
+        if (!empty($params['mode']) && $params['mode'] == 'mail')
+        {
+            $conversation = $this->service->getConversation($conversationId);
+
+            $message = $this->service->createMessage($conversation, $params['userId'], $params['text']);
+
+            if ( isset($params['isSystem']) && $params['isSystem'] )
+            {
+                $this->service->markMessageAsSystem($message->id);
+            }
+
+            $this->service->markUnread(array($conversationId), $params['opponentId']);
+
+            $messageData = $this->service->getMessageDataForApi($message);
+
+            $data = array('error'=>false, 'message'=>$messageData);
+
+            $event->setData($data);
+
+            BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
+
+            return $data;
+        }
+    }
+
     public function getNewMessages( OW_Event $event )
     {
         $params = $event->getParams();
@@ -1213,9 +1291,9 @@ class MAILBOX_CLASS_EventHandler
         $params = $event->getParams();
 
         $userId = $params['userId'];
-        $opponentId = $params['opponentId'];
+        $conversationId = $params['conversationId'];
 
-        $data = $this->service->getMessagesForApi($userId, $opponentId);
+        $data = $this->service->getMessagesForApi($userId, $conversationId);
 
         $event->setData($data);
 
@@ -1298,11 +1376,53 @@ class MAILBOX_CLASS_EventHandler
     public function onMarkUnread( OW_Event $event )
     {
         $params = $event->getParams();
+
+        $this->service->markUnread(array($params['conversationId']), $params['userId']);
+
+        $event->setData($count);
+
+        return $count;
     }
 
     public function onDeleteConversation( OW_Event $event )
     {
         $params = $event->getParams();
+
+        $count = $this->service->deleteConversation(array($params['conversationId']), $params['userId']);
+
+        $event->setData($count);
+
+        return $count;
+    }
+
+    public function onCreateConversation( OW_Event $event )
+    {
+        $params = $event->getParams();
+        $userId = $params['userId'];
+        $opponentId = $params['opponentId'];
+        $text = $params['text'];
+        $subject = $params['subject'];
+
+        $conversation = $this->service->createConversation($userId, $opponentId, $subject, $text);
+
+        $event->setData($conversation);
+
+        return $conversation;
+    }
+
+    public function onGetActiveModeList( OW_Event $event )
+    {
+        $activeModeList = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
+        $event->setData($activeModeList);
+
+        return $activeModeList;
+    }
+
+    public function onAuthorizeAction( OW_Event $event )
+    {
+        $params = $event->getParams();
+        $result = $this->ajaxService->authorizeActionForApi( $params );
+        $event->setData($result);
+        return $result;
     }
 }
-

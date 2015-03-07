@@ -1439,7 +1439,7 @@ final class MAILBOX_BOL_ConversationService
 
                         $eventData = $event->getData();
 
-                        $convPreview = '...'.$eventData['short'];
+                        $convPreview = $eventData['short'];
                     }
                 }
 
@@ -1717,6 +1717,7 @@ final class MAILBOX_BOL_ConversationService
         $userNameByUserIdList = BOL_UserService::getInstance()->getUserNamesForList($userIdList);
         $unreadMessagesCountByConversationIdList = $this->countUnreadMessagesForConversationList($conversationIdList, $userId);
         $conversationsWithAttachments = $this->getConversationsWithAttachmentFromConversationList($conversationIdList);
+        $onlineMap = BOL_UserService::getInstance()->findOnlineStatusForUserList($userIdList);
 
         foreach($conversationItemList as $conversation)
         {
@@ -1788,10 +1789,17 @@ final class MAILBOX_BOL_ConversationService
             $item['displayName'] = $profileDisplayname;
             $item['dateLabel'] = $convDate;
             $item['previewText'] = $convPreview;
+            $item['subject'] = $conversation['subject'];
             $item['lastMessageTimestamp'] = (int)$conversation['timeStamp'];
             $item['reply'] = $conversationHasReply;
             $item['newMessageCount'] = array_key_exists($conversationId, $unreadMessagesCountByConversationIdList) ? $unreadMessagesCountByConversationIdList[$conversationId] : 0;
             $item['hasAttachment'] = $conversationsWithAttachments[$conversationId];
+
+            $item['timeLabel'] = $conversation["timeStamp"] > 0 ? UTIL_DateTime::formatDate($conversation["timeStamp"]) : "";
+            $item['onlineStatus'] = $onlineMap[$opponentId];
+
+            $winkReceived = OW::getEventManager()->call('winks.isWinkSent', array('userId'=>$userId, 'partnerId'=>$opponentId));
+            $item['winkReceived'] = (int)$winkReceived;
 
             $shortUserData = $this->getFields(array($opponentId));
             $item['shortUserData'] = $shortUserData[$opponentId];
@@ -3484,10 +3492,8 @@ final class MAILBOX_BOL_ConversationService
         return $item;
     }
 
-    public function getMessagesForApi($userId, $opponentId)
+    public function getMessagesForApi($userId, $conversationId)
     {
-        $conversationId = $this->getChatConversationIdWithUserById($userId, $opponentId);
-
         $list = array();
         $length = 0;
 

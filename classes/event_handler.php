@@ -301,7 +301,7 @@ class MAILBOX_CLASS_EventHandler
                     $linkId = 'mb' . rand(10, 1000000);
                     $script = "\$('#" . $linkId . "').click(function(){
 
-                window.OW.error('".$checkResult['suspendReasonMessage']."');
+                window.OW.error(".json_encode($checkResult['suspendReasonMessage']).");
 
             });";
 
@@ -398,7 +398,7 @@ class MAILBOX_CLASS_EventHandler
             $linkId = 'mb' . rand(10, 1000000);
             $script = "\$('#" . $linkId . "').click(function(){
 
-                window.OW.error('".$checkResult['suspendReasonMessage']."');
+                window.OW.error(".json_encode($checkResult['suspendReasonMessage']).");
 
             });";
 

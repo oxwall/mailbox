@@ -2036,7 +2036,7 @@ final class MAILBOX_BOL_ConversationService
     {
         $list = array();
 
-        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp);
+        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp, $this->getActiveModeList());
 
         $list = $this->getMessageDataForList($messages);
 
@@ -3036,7 +3036,7 @@ final class MAILBOX_BOL_ConversationService
 
     public function getMarkedUnreadConversationList( $userId, $ignoreList = array() )
     {
-        $list = $this->conversationDao->getMarkedUnreadConversationList( $userId, $ignoreList );
+        $list = $this->conversationDao->getMarkedUnreadConversationList( $userId, $ignoreList, $this->getActiveModeList() );
         foreach($list as $id => $value)
         {
             $list[$id] = (int)$value;

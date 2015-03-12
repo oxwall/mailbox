@@ -561,13 +561,27 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
     }
 
 
-    public function getMarkedUnreadConversationList( $userId, $ignoreList = array() )
+    public function getMarkedUnreadConversationList( $userId, $ignoreList = array(), $activeModeList = array())
     {
+        $mailModeEnabled = (in_array('mail', $activeModeList)) ? true : false;
+        $chatModeEnabled = (in_array('chat', $activeModeList)) ? true : false;
         $ignore = "";
 
         if ( !empty( $ignoreList ) )
         {
             $ignore = " AND `conv`.id NOT IN (". $this->dbo->mergeInClause($ignoreList) .") ";
+        }
+
+        if ( !$mailModeEnabled || !$chatModeEnabled )
+        {
+            if ( !$chatModeEnabled ) 
+            {
+                $ignore .= " AND `conv`.subject <> 'mailbox_chat_conversation' ";
+            }
+            else 
+            {
+                $ignore .= " AND `conv`.subject = 'mailbox_chat_conversation' ";
+            }
         }
 
         $sql = " SELECT `conv`.`id` FROM `" . $this->getTableName() . "` AS `conv`

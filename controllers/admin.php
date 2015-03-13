@@ -67,6 +67,10 @@ class MAILBOX_CTRL_Admin extends ADMIN_CTRL_Abstract
         if ( OW::getRequest()->isPost() && $configSaveForm->isValid($_POST) )
         {
             $configSaveForm->process();
+
+            // clear cache
+            MAILBOX_BOL_ConversationService::getInstance()->resetAllUsersLastData();
+
             OW::getFeedback()->info($language->text('mailbox', 'settings_updated'));
             $this->redirect();
         }

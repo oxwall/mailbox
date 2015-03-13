@@ -199,8 +199,11 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
         return $this->dbo->queryForObject($sql, $this->getDtoClassName(), array('userId' => $userId));
     }
 
-    public function findUnreadMessages( $userId, $ignoreList, $timeStamp = null)
+    public function findUnreadMessages( $userId, $ignoreList, $timeStamp = null, $activeModeList = array())
     {
+        $mailModeEnabled = (in_array('mail', $activeModeList)) ? true : false;
+        $chatModeEnabled = (in_array('chat', $activeModeList)) ? true : false;
+
         if ($timeStamp === null)
         {
             $timeStamp = 0;
@@ -213,11 +216,24 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
             $ignore = " AND `m`.id NOT IN (". $this->dbo->mergeInClause($ignoreList) .") ";
         }
 
+        $mailModeIgnore = "";
+        if ( !$mailModeEnabled || !$chatModeEnabled )
+        {
+            if ( !$chatModeEnabled ) 
+            {
+                $mailModeIgnore = " AND `conv`.subject <> '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
+            }
+            else 
+            {
+                $mailModeIgnore = " AND `conv`.subject = '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
+            }
+        }
+
         $sql = "SELECT `m`.* FROM `{$this->getTableName()}` as `m`
         LEFT JOIN `".MAILBOX_BOL_ConversationDao::getInstance()->getTableName()."` as `conv` ON (`conv`.`id` = `m`.`conversationId`)
-        WHERE ( ( ( `conv`.`initiatorId` = :userId AND (`conv`.`deleted` != " . MAILBOX_BOL_ConversationDao::DELETED_INITIATOR . " OR `m`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` ) )
+        WHERE ( ( ( ( `conv`.`initiatorId` = :userId AND (`conv`.`deleted` != " . MAILBOX_BOL_ConversationDao::DELETED_INITIATOR . " OR `m`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` ) )
         OR ( `conv`.`interlocutorId` = :userId AND (`conv`.`deleted` != " . MAILBOX_BOL_ConversationDao::DELETED_INTERLOCUTOR . " OR `m`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp`) ) )
-        AND `m`.`recipientId` = :userId AND `m`.`recipientRead` = 0 {$ignore} ) OR ( `m`.`senderId` = :userId AND `m`.`timeStamp` > :timeStamp )
+        AND `m`.`recipientId` = :userId AND `m`.`recipientRead` = 0 {$ignore} ) OR ( `m`.`senderId` = :userId AND `m`.`timeStamp` > :timeStamp )) {$mailModeIgnore}
         ORDER BY `m`.`id`, `m`.`timeStamp` DESC";
 
         return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array('userId' => $userId, 'timeStamp'=>$timeStamp));

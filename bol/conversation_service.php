@@ -2036,7 +2036,7 @@ final class MAILBOX_BOL_ConversationService
     {
         $list = array();
 
-        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp);
+        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp, $this->getActiveModeList());
 
         $list = $this->getMessageDataForList($messages);
 
@@ -2374,9 +2374,11 @@ final class MAILBOX_BOL_ConversationService
 //                $userData['newMessageCount'] = array('all'=>0, 'new'=>0);//TODO
 //            }
 
+            
             $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
             $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, 10); //TODO get limits from client side
 
+        
             $userLastData->data = json_encode($userData);
 
             $this->userLastDataDao->save($userLastData);
@@ -2409,6 +2411,7 @@ final class MAILBOX_BOL_ConversationService
 
         $data = json_decode($userLastData->data, true);
 
+        
         if ($params['userOnlineCount'] === 0 || $data['userOnlineCount'] != $params['userOnlineCount'])
         {
             $result['userOnlineCount'] = $data['userOnlineCount'];
@@ -2421,6 +2424,7 @@ final class MAILBOX_BOL_ConversationService
             $result['convList'] = $data['convList'];
         }
 
+        
         if (!empty($data['messageList']))
         {
             foreach($data['messageList'] as $id => $message)
@@ -3036,7 +3040,7 @@ final class MAILBOX_BOL_ConversationService
 
     public function getMarkedUnreadConversationList( $userId, $ignoreList = array() )
     {
-        $list = $this->conversationDao->getMarkedUnreadConversationList( $userId, $ignoreList );
+        $list = $this->conversationDao->getMarkedUnreadConversationList( $userId, $ignoreList, $this->getActiveModeList() );
         foreach($list as $id => $value)
         {
             $list[$id] = (int)$value;

@@ -576,11 +576,11 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         {
             if ( !$chatModeEnabled ) 
             {
-                $ignore .= " AND `conv`.subject <> 'mailbox_chat_conversation' ";
+                $ignore .= " AND `conv`.subject <> '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
             }
             else 
             {
-                $ignore .= " AND `conv`.subject = 'mailbox_chat_conversation' ";
+                $ignore .= " AND `conv`.subject = '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
             }
         }
 

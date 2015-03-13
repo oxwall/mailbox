@@ -221,11 +221,11 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
         {
             if ( !$chatModeEnabled ) 
             {
-                $mailModeIgnore = " AND `conv`.subject <> 'mailbox_chat_conversation' ";
+                $mailModeIgnore = " AND `conv`.subject <> '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
             }
             else 
             {
-                $mailModeIgnore = " AND `conv`.subject = 'mailbox_chat_conversation' ";
+                $mailModeIgnore = " AND `conv`.subject = '" . MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT . "' ";
             }
         }
 

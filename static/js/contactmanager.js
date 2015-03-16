@@ -2464,6 +2464,7 @@ OWMailbox.Dialog.Controller.prototype = {
         if (!self.embedLinkDetected)
         {
             var tmpMessage = {
+                'rawMessage' : true,
                 'isSystem': false,
                 'date': OWMailbox.todayDate,
                 'dateLabel': OWMailbox.todayDateLabel,
@@ -2489,6 +2490,7 @@ OWMailbox.Dialog.Controller.prototype = {
         else
         {
             var tmpMessage = {
+                'rawMessage' : true,
                 'isSystem': true,
                 'date': OWMailbox.todayDate,
                 'dateLabel': OWMailbox.todayDateLabel,
@@ -2554,6 +2556,7 @@ OWMailbox.Dialog.Controller.prototype = {
             'data': data
         };
         ajaxData['actionCallbacks'] = {
+            'tmpMessageUid' : tmpMessageUid,
             'success': function(data){
 
                 if (typeof data.error == 'undefined' || data.error == null)
@@ -2709,7 +2712,9 @@ OWMailbox.Dialog.Controller.prototype = {
     updateChatMessage: function(message){
         if (typeof message.uniqueId != 'undefined'){
             var messageContainer = $('#messageItem'+message.uniqueId, this.control);
+
             messageContainer.attr('id', 'messageItem'+message.id);
+            //messageContainer.attr('timestamp', message.timeStamp);
         }
         else{
             var messageContainer = $('#messageItem'+message.id, this.control);
@@ -2786,6 +2791,11 @@ OWMailbox.Dialog.Controller.prototype = {
 
         var css_class = css_class || null;
 
+        if ($('#messageItem'+message.id, this.control).length > 0)
+        {
+            return;
+        }
+
         var groupContainer = $('#groupedMessages-'+message.date, this.control);
         if (groupContainer.length == 0){
             groupContainer = $('#dialogDateCapBlock').clone();
@@ -2808,6 +2818,9 @@ OWMailbox.Dialog.Controller.prototype = {
         }
 
         messageContainer.attr('id', 'messageItem'+message.id);
+        messageContainer.attr('data-tmp-id', 'messageItem'+message.id);
+        messageContainer.attr('data-timestamp', message.timeStamp);
+        messageContainer.addClass('message');
 
         var html = '';
         if (message.isSystem){
@@ -2861,20 +2874,31 @@ OWMailbox.Dialog.Controller.prototype = {
             $('div.ow_dialog_item', messageContainer).addClass(css_class);
         }
 
-        if (this.lastMessageDate != message.date){
-            this.lastMessageDate = message.date;
-            this.messageListControl.append(groupContainer);
-        }
+        // get last message
+        var lastMessage = this.messageListControl.find('.message:last');
 
-        if ( message.timeLabel != this.model.lastMessageTimeLabel ){
-            this.model.lastMessageTimeLabel = message.timeLabel;
-            this.showTimeBlock(message.timeLabel);
-        }
-        this.messageListControl.append(messageContainer);
-        this.scrollDialog();
+        // HOTFIX; Correct messages oredring (skalfa/workflow#35)
+        if (message.rawMessage || !lastMessage.length || lastMessage.attr('data-timestamp') < message.timeStamp) {
+            if (this.lastMessageDate != message.date){
+                this.lastMessageDate = message.date;
+                this.messageListControl.append(groupContainer);
+            }
 
-        this.model.setLastMessageTimestamp(message.timeStamp);
-        this.model.lastMessageId = message.id;
+            if ( message.timeLabel != this.model.lastMessageTimeLabel ){
+                this.model.lastMessageTimeLabel = message.timeLabel;
+                this.showTimeBlock(message.timeLabel);
+            }
+
+            this.messageListControl.append(messageContainer);
+            this.scrollDialog();
+
+            this.model.setLastMessageTimestamp(message.timeStamp);
+            this.model.lastMessageId = message.id;
+        }
+        else {
+            $(messageContainer).insertBefore(lastMessage);
+            this.scrollDialog();
+        }
 
         if ( parseInt(im_readCookie('im_soundEnabled')) && css_class == null){
             var audioTag = document.createElement('audio');

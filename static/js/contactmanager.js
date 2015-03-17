@@ -2901,10 +2901,11 @@ OWMailbox.Dialog.Controller.prototype = {
         }
 
         var soundEnabled   = im_readCookie('im_soundEnabled');
-        var isSoundEnabled = css_class == null 
-                && (soundEnabled === null || parseInt(soundEnabled) == 1) && OWMailbox.soundEnabled;
- 
-        if (isSoundEnabled){
+        var isSoundEnabled = soundEnabled !== null 
+            ? parseInt(soundEnabled) 
+            : OWMailbox.soundEnabled; // use the default value
+
+        if (css_class == null && isSoundEnabled){
             var audioTag = document.createElement('audio');
             if (!(!!(audioTag.canPlayType) && ("no" != audioTag.canPlayType("audio/mp3")) && ("" != audioTag.canPlayType("audio/mp3")) && ("maybe" != audioTag.canPlayType("audio/mp3")) )) {
                 AudioPlayer.embed("im_sound_player_audio", {

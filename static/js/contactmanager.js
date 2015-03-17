@@ -2901,8 +2901,9 @@ OWMailbox.Dialog.Controller.prototype = {
         }
 
         var soundEnabled   = im_readCookie('im_soundEnabled');
-        var isSoundEnabled = css_class == null && (soundEnabled === null || parseInt(soundEnabled) == 1);
-
+        var isSoundEnabled = css_class == null 
+                && (soundEnabled === null || parseInt(soundEnabled) == 1) && OWMailbox.soundEnabled;
+ 
         if (isSoundEnabled){
             var audioTag = document.createElement('audio');
             if (!(!!(audioTag.canPlayType) && ("no" != audioTag.canPlayType("audio/mp3")) && ("" != audioTag.canPlayType("audio/mp3")) && ("maybe" != audioTag.canPlayType("audio/mp3")) )) {

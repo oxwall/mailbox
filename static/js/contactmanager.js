@@ -2900,7 +2900,10 @@ OWMailbox.Dialog.Controller.prototype = {
             this.scrollDialog();
         }
 
-        if ( parseInt(im_readCookie('im_soundEnabled')) && css_class == null){
+        var soundEnabled   = im_readCookie('im_soundEnabled');
+        var isSoundEnabled = css_class == null && (soundEnabled === null || parseInt(soundEnabled) == 1);
+
+        if (isSoundEnabled){
             var audioTag = document.createElement('audio');
             if (!(!!(audioTag.canPlayType) && ("no" != audioTag.canPlayType("audio/mp3")) && ("" != audioTag.canPlayType("audio/mp3")) && ("maybe" != audioTag.canPlayType("audio/mp3")) )) {
                 AudioPlayer.embed("im_sound_player_audio", {

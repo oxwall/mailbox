@@ -768,6 +768,7 @@ MAILBOX_ConversationListView = Backbone.View.extend({
                                 if ($('#conversationItem' + conversation.data.conversationId).length == 0) {
                                     var conv = new MAILBOX_Conversation(conversation.data);
                                     self.createItem(conv);
+                                    OW.Mailbox.conversationsCollection.add(conversation.data);
                                     conv.show();
                                 }
 

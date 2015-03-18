@@ -206,6 +206,19 @@ OWMailbox.Application = function(params){
 
     this.setData = function(data){
 
+        // HOTFIX; update old messages timestamps firstly, it needs for correct messages ordering  (skalfa/workflow#35)
+        if (typeof data.ajaxActionResponse != 'undefined'){
+            $.each(data.ajaxActionResponse, function(uniqueId, item){
+                 var actionCallback = self.ajaxActionCallbacks[uniqueId];
+            
+                 if (typeof item.message != 'undefined') {
+                    if (item.message.mode == 'chat' && typeof actionCallback.tmpMessageUid != 'undefined') {
+                         $(".message[data-tmp-id='messageItem" + actionCallback.tmpMessageUid + "']").attr('data-timestamp', item.message.timeStamp);
+                    }
+                 }
+            });
+        }
+
         if (typeof data.userOnlineCount != 'undefined'){
             if (typeof data.userList != 'undefined'){
                 self.usersCollection = self.usersCollection.set(data.userList);
@@ -227,12 +240,12 @@ OWMailbox.Application = function(params){
         }
 
         if (typeof data.messageList != 'undefined'){
-            var tmpLastMessageTimestamp = OW.Mailbox.lastMessageTimestamp;
+            ///var tmpLastMessageTimestamp = OW.Mailbox.lastMessageTimestamp;
             $.each(data.messageList, function(){
-                if (this.timeStamp != self.lastMessageTimestamp){
+               // if (this.timeStamp != self.lastMessageTimestamp){
                     OW.trigger('mailbox.message', this);
-                    tmpLastMessageTimestamp = parseInt(this.timeStamp);
-                }
+                 //   tmpLastMessageTimestamp = parseInt(this.timeStamp);
+                //}
             });
             //OW.Mailbox.lastMessageTimestamp = tmpLastMessageTimestamp;
         }

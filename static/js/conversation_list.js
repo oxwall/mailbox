@@ -768,6 +768,7 @@ MAILBOX_ConversationListView = Backbone.View.extend({
                                 if ($('#conversationItem' + conversation.data.conversationId).length == 0) {
                                     var conv = new MAILBOX_Conversation(conversation.data);
                                     self.createItem(conv);
+                                    OW.Mailbox.conversationsCollection.add(conversation.data);
                                     conv.show();
                                 }
 
@@ -1716,6 +1717,7 @@ MAILBOX_ConversationView.prototype = {
         if (!self.embedLinkDetected)
         {
             var tmpMessage = {
+                'rawMessage' : true,
                 'isSystem': false,
                 'date': OWMailbox.todayDate,
                 'dateLabel': OWMailbox.todayDateLabel,
@@ -1741,6 +1743,7 @@ MAILBOX_ConversationView.prototype = {
         else
         {
             var tmpMessage = {
+                'rawMessage' : true,
                 'isSystem': true,
                 'date': OWMailbox.todayDate,
                 'dateLabel': OWMailbox.todayDateLabel,
@@ -1808,6 +1811,7 @@ MAILBOX_ConversationView.prototype = {
             'data': data
         };
         ajaxData['actionCallbacks'] = {
+            'tmpMessageUid' : tmpMessageUid,
             'success': function(data){
 
                 if (typeof data.error == 'undefined' || data.error == null)
@@ -2102,6 +2106,9 @@ MAILBOX_ConversationView.prototype = {
         }
 
         messageContainer.attr('id', 'messageItem'+message.id);
+        messageContainer.attr('data-tmp-id', 'messageItem'+message.id);
+        messageContainer.attr('data-timestamp', message.timeStamp);
+        messageContainer.addClass('message');
 
         var html = '';
         if (message.isSystem){
@@ -2151,24 +2158,34 @@ MAILBOX_ConversationView.prototype = {
             $('div.ow_dialog_item', messageContainer).addClass(css_class);
         }
 
-        if (this.lastMessageDate != message.date)
-        {
-            this.lastMessageDate = message.date;
+        // get last message
+        var lastMessage = this.messageListControl.find('.message:last');
+
+        // HOTFIX; Correct messages oredring (skalfa/workflow#35)
+        if (message.rawMessage || !lastMessage.length || lastMessage.attr('data-timestamp') < message.timeStamp) {
+            if (this.lastMessageDate != message.date)
+            {
+                this.lastMessageDate = message.date;
+                this.messageListWrapperControl.append(groupContainer);
+            }
+
+            if ( message.timeLabel != this.model.lastMessageTimeLabel )
+            {
+                this.model.lastMessageTimeLabel = message.timeLabel;
+                this.showTimeBlock(message.timeLabel, groupContainer);
+            }
+
+            groupContainer.append(messageContainer);
             this.messageListWrapperControl.append(groupContainer);
+            this.scrollDialog();
+
+            this.model.setLastMessageTimestamp(message.timeStamp);
+            this.model.lastMessageId = message.id;
         }
-
-        if ( message.timeLabel != this.model.lastMessageTimeLabel )
-        {
-            this.model.lastMessageTimeLabel = message.timeLabel;
-            this.showTimeBlock(message.timeLabel, groupContainer);
+        else {
+            $(messageContainer).insertBefore(lastMessage);
+            this.scrollDialog();
         }
-
-        groupContainer.append(messageContainer);
-        this.messageListWrapperControl.append(groupContainer);
-        this.scrollDialog();
-
-        this.model.setLastMessageTimestamp(message.timeStamp);
-        this.model.lastMessageId = message.id;
 
         if ( parseInt(im_readCookie('im_soundEnabled')) && css_class == null){
             var audioTag = document.createElement('audio');

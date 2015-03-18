@@ -57,11 +57,11 @@ class MAILBOX_CTRL_Messages extends OW_ActionController
                 throw new Redirect404Exception();
             }
 
-            $conversationMode = $conversationService->getConversationMode($params['convId']);
+            /*$conversationMode = $conversationService->getConversationMode($params['convId']);
             if ($conversationMode != 'mail')
             {
                 throw new Redirect404Exception();
-            }
+            }*/
         }
 
         $listParams['activeModeList'] = $conversationService->getActiveModeList();

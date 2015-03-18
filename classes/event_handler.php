@@ -70,6 +70,7 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('mailbox.delete_conversation', array($this, 'onDeleteConversation'));
         OW::getEventManager()->bind('mailbox.create_conversation', array($this, 'onCreateConversation'));
         OW::getEventManager()->bind('mailbox.authorize_action', array($this, 'onAuthorizeAction'));
+        OW::getEventManager()->bind('mailbox.find_user', array($this, 'onFindUser'));
 
         if (OW::getPluginManager()->isPluginActive('ajaxim'))
         {
@@ -1422,6 +1423,29 @@ class MAILBOX_CLASS_EventHandler
     {
         $params = $event->getParams();
         $result = $this->ajaxService->authorizeActionForApi( $params );
+        $event->setData($result);
+        return $result;
+    }
+
+    public function onFindUser( OW_Event $event )
+    {
+        $result = array();
+        $params = $event->getParams();
+
+        if ( !OW::getUser()->isAuthenticated() )
+        {
+            $event->setData($result);
+            return $result;
+        }
+
+        $kw = empty($params['term']) ? null : $params['term'];
+        $idList = empty($params['idList']) ? null : $params['idList'];
+
+        $context = empty($params["context"]) ? 'api' : $params["context"];
+        $userId = OW::getUser()->getId();
+
+        $result = $this->ajaxService->getSuggestEntries($userId, $kw, $idList, $context);
+
         $event->setData($result);
         return $result;
     }

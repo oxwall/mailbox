@@ -2799,6 +2799,95 @@ final class MAILBOX_BOL_ConversationService
         return $userInfoList;
     }
 
+    public function getUserInfoForUserIdListForApi( $userIdList, $userWithCorrespondenceIdList = array(), $friendIdList = array() )
+    {
+        if (empty($userIdList))
+        {
+            return array();
+        }
+        $activeModes = $this->getActiveModeList();
+
+        $userInfoList = array();
+        $userId = OW::getUser()->getId();
+
+        $blockedByUserIdList = $this->isBlockedByUserIdList($userId, $userIdList);
+        $onlineStatusByUserIdList = $this->getUserStatusForUserIdList($userIdList);
+        $userNameByUserIdList = BOL_UserService::getInstance()->getUserNamesForList($userIdList);
+        $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars($userIdList, true, false, true, true);
+        $conversationIdByUserIdList = $this->getChatConversationIdWithUserByIdList($userId, $userIdList);
+        $friendIdList = OW::getEventManager()->call('plugin.friends.get_friend_list', array('userId'=>$userId));
+        $shortUserDataByUserIdList = $this->getFields($userIdList);
+
+        if (empty($friendIdList))
+        {
+            $friendIdList = array();
+        }
+
+        $lastMessageTimestampByUserIdList = $this->getLastMessageTimestampByUserIdList($userIdList);
+
+        if (in_array('chat', $activeModes))
+        {
+            $canInviteByUserIdList = $this->getInviteToChatPrivacySettingsForUserIdList($userId, $userIdList);
+        }
+        else
+        {
+            $canInviteByUserIdList = array();
+        }
+
+        foreach ($userIdList as $opponentId)
+        {
+            $wasCorrespondence = false;
+            if ($userWithCorrespondenceIdList === null)
+            {
+                $userWithCorrespondenceIdList = $this->getUserListWithCorrespondence();
+                $wasCorrespondence = in_array($opponentId, $userWithCorrespondenceIdList);
+            }
+            else
+            {
+                $wasCorrespondence = in_array($opponentId, $userWithCorrespondenceIdList);
+            }
+
+            $conversationId = array_key_exists($opponentId, $conversationIdByUserIdList) ? $conversationIdByUserIdList[$opponentId] : 0;
+
+            $info = array(
+                'opponentId' => (int)$opponentId,
+                'displayName' => empty($avatarData[$opponentId]['title']) ? $userNameByUserIdList[$opponentId] : $avatarData[$opponentId]['title'],
+                'avatarUrl' => $avatarData[$opponentId]['src'],
+                'avatarLabel' => !empty($avatarData[$opponentId]) ? mb_substr($avatarData[$opponentId]['label'], 0, 1) : null,
+                'profileUrl' => '',
+                'isFriend' => in_array($opponentId, $friendIdList),
+                'status' => $onlineStatusByUserIdList[$opponentId],
+                'lastMessageTimestamp' => array_key_exists($opponentId, $lastMessageTimestampByUserIdList) ? $lastMessageTimestampByUserIdList[$opponentId] : 0,
+                'convId' => (int)$conversationId, //here it is a chat conversation id
+                'wasCorrespondence' => $wasCorrespondence,
+                'shortUserData' => $shortUserDataByUserIdList[$opponentId]
+            );
+
+            if (in_array('chat', $activeModes))
+            {
+//                $url = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
+//                $info['url'] = $url;
+                $info['canInvite'] = $canInviteByUserIdList[$opponentId];
+
+                if ( !$info['canInvite'] )
+                {
+                    $info['wasBlocked'] = true;
+                }
+            }
+//            else
+//            {
+//                $url = OW::getRouter()->urlForRoute('mailbox_compose_mail_conversation', array('opponentId'=>$opponentId));
+//                $info['url'] = $url;
+//            }
+
+            $userInfoList[$opponentId] = $info;
+
+            $userInfoList[$opponentId]['wasBlocked'] = in_array($opponentId, $blockedByUserIdList) ? true : false;
+        }
+
+        return $userInfoList;
+    }
+
     public function getUserOnlineInfoForUserIdList( $userIdList, $userWithCorrespondenceIdList = null, $friendIdList = null )
     {
         if (empty($userIdList))

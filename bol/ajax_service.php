@@ -493,6 +493,54 @@ class MAILBOX_BOL_AjaxService {
         }
     }
 
+    public function onSearchForApi( BASE_CLASS_EventCollector $event )
+    {
+        $params = $event->getParams();
+
+        $kw = $params["kw"];
+        $userId = $params["userId"];
+        $recipients = $params["recipients"];
+
+        $userIds = array();
+
+        if ( $params["preload"] )
+        {
+            if ( $kw === null )
+            {
+                $users = BOL_UserService::getInstance()->findList(0, 200);
+
+                foreach ( $users as $u )
+                {
+                    $userIds[] = $u->id;
+                }
+            }
+            else
+            {
+                $userIds = $this->findUsers($kw, 16);
+            }
+        }
+
+        if ( !empty($recipients) )
+        {
+            foreach ( $recipients as $r )
+            {
+                list($prefix, $id) = explode("_", $r);
+
+                if ( $prefix == 'user' )
+                {
+                    $userIds[] = $id;
+                }
+            }
+        }
+
+        $data = $this->buildDataForApi(array_unique($userIds), OW::getLanguage()->text('mailbox', 'selector_group_other'), array($userId));
+
+        foreach ( $data as $item )
+        {
+            $event->add($item);
+        }
+    }
+
     public function onConversationSearch( BASE_CLASS_EventCollector $event )
     {
         $params = $event->getParams();
@@ -574,6 +622,34 @@ class MAILBOX_BOL_AjaxService {
         return $out;
     }
 
+    protected function buildDataForApi( $userIds, $group = null, $ignoreUserIds = array() )
+    {
+        if ( empty($userIds) )
+        {
+            return array();
+        }
+
+        $infoList = MAILBOX_BOL_ConversationService::getInstance()->getUserInfoForUserIdListForApi($userIds);
+
+        $out = array();
+
+        foreach ( $userIds as $userId )
+        {
+            if ( in_array($userId, $ignoreUserIds) )
+            {
+                continue;
+            }
+
+            $item = array();
+            $item['id'] = 'user' . '_' . $userId;
+            $item['data'] = $infoList[$userId];
+
+            $out[] = $item;
+        }
+
+        return $out;
+    }
+
     protected function buildConversationData( $conversations, $group = null, $ignoreConvIds = array() )
     {
         if ( empty($conversations) )
@@ -622,6 +698,10 @@ class MAILBOX_BOL_AjaxService {
             }
 
             return array('list'=>$out, 'kw'=>$kw);
+        }
+        else if ($context == 'api')
+        {
+            $this->onSearchForApi($event);
         }
         else
         {

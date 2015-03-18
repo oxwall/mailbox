@@ -83,7 +83,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
 //        $textarea->setHasInvitation(true);
 //        $textarea->setInvitation($language->text('mailbox', 'message_invitation'));
         $textarea->addAttribute('placeholder', $language->text('mailbox', 'message_invitation'));
-        $requiredValidator = new RequiredValidator();
+        $requiredValidator = new WyswygRequiredValidator();
         $requiredValidator->setErrorMessage( $language->text('mailbox', 'chat_message_empty') );
         $textarea->addValidator($requiredValidator);
 

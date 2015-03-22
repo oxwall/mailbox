@@ -1449,6 +1449,97 @@ final class MAILBOX_BOL_ConversationService
         return $convPreview;
     }
 
+
+    public function getConversationPreviewTextForApi($conversation)
+    {
+        $convPreview = '';
+
+        switch($conversation['mode']) {
+            case 'mail':
+                $authActionName = 'read_message';
+                break;
+
+            case 'chat':
+                $authActionName = 'read_chat_message';
+                break;
+        }
+
+        $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $authActionName);
+
+        $readMessageAuthorized = true;
+
+        if ( (int)$conversation['lastMessageSenderId'] != OW::getUser()->getId() && !$conversation['lastMessageWasAuthorized'])
+        {
+            if ($status['status'] == BOL_AuthorizationService::STATUS_AVAILABLE)
+            {
+                if ($status['authorizedBy'] == 'usercredits')
+                {
+                    $readMessageAuthorized = false;
+                    $convPreview = OW::getLanguage()->text('mailbox', 'click_to_read_messages');
+                }
+                else
+                {
+                    $readMessageAuthorized = true;
+                    $this->markMessageAuthorizedToRead($conversation['lastMessageId']);
+                }
+            }
+            else if ($status['status'] == BOL_AuthorizationService::STATUS_PROMOTED)
+            {
+                $readMessageAuthorized = false;
+                $convPreview = UTIL_HtmlTag::stripTags($status['msg']);
+            }
+            else
+            {
+                $readMessageAuthorized = false;
+                $convPreview = OW::getLanguage()->text('mailbox', 'read_permission_denied');
+            }
+        }
+
+        if ($readMessageAuthorized)
+        {
+            if ($conversation['isSystem'])
+            {
+                $eventParams = json_decode($conversation['text'], true);
+                $eventParams['params']['messageId'] = (int)$conversation['lastMessageId'];
+                $eventParams['params']['getPreview'] = true;
+
+                $event = new OW_Event($eventParams['entityType'].'.'.$eventParams['eventName'], $eventParams['params']);
+                OW::getEventManager()->trigger($event);
+
+                $data = $event->getData();
+
+                if (!empty($data))
+                {
+                    $convPreview = $data;
+                }
+                else
+                {
+                    $convPreview = OW::getLanguage()->text('mailbox', 'can_not_display_entitytype_message', array('entityType'=>$eventParams['entityType']));
+                }
+            }
+            else
+            {
+                $short = mb_strlen($conversation['text']) > 50 ? mb_substr($conversation['text'], 0, 50) . '...' : $conversation['text'];
+//                        $short = UTIL_HtmlTag::autoLink($short);
+
+                $event = new OW_Event('mailbox.message_render', array(
+                    'conversationId' => $conversation['id'],
+                    'messageId' => $conversation['lastMessageId'],
+                    'senderId' => $conversation['lastMessageSenderId'],
+                    'recipientId' => $conversation['lastMessageRecipientId'],
+                ), array( 'short' => $short, 'full' => $conversation['text'] ));
+
+                OW::getEventManager()->trigger($event);
+
+                $eventData = $event->getData();
+
+                $convPreview = $eventData['short'];
+            }
+        }
+
+        return $convPreview;
+    }
+
     public function getConversationItem($mode, $convId)
     {
         $userId = OW::getUser()->getId();
@@ -1775,7 +1866,7 @@ final class MAILBOX_BOL_ConversationService
 //            $profileUrl = $avatarData[$opponentId]['url'];
             $avatarUrl = $avatarData[$opponentId]['src'];
             $convDate = empty($conversation['timeStamp']) ? '' : UTIL_DateTime::formatDate((int)$conversation['timeStamp'], true);
-            $convPreview = $this->getConversationPreviewText($conversation);
+            $convPreview = $this->getConversationPreviewTextForApi($conversation);
 
             $item = array();
 

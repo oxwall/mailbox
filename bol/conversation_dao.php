@@ -584,6 +584,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
             }
         }
 
+        $ignore .= ' AND `conv`.`lastMessageId` != 0';
         $sql = " SELECT `conv`.`id` FROM `" . $this->getTableName() . "` AS `conv`
 
 				 WHERE (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `conv`.`lastMessageTimestamp` > `conv`.`initiatorDeletedTimestamp`) ) OR ( `conv`.`interlocutorId` = :user AND ( `conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR . " OR `conv`.`lastMessageTimestamp` > `conv`.`interlocutorDeletedTimestamp`) ))

@@ -99,7 +99,14 @@ MAILBOX_ContactView = Backbone.View.extend({
         }, this);
 
         this.$el.click(function (){
-            OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+            if (typeof OW.Mailbox.newMessageFormController != "undefined") {
+                if (OW.Mailbox.newMessageFormController.closeNewMessageWindowWithConfirmation($('.mailboxDialogBlock.ow_open').length)) {
+                    OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+                }  
+            }
+            else {
+                OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+            }
         });
 
         OW.bind('mailbox.presence', function(presence){
@@ -842,15 +849,6 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         return size;
     },
 
-    closeMailBox: function() {
-        alert('close');
-    },
-
-    isMailboxActive: function() {
-        var new_message_window = $('#newMessageWindow');
-        return OWMailbox.mailModeEnabled && new_message_window.length && new_message_window.is(":visible");
-    },
- 
     fitWindow: function() {
         var self = this;
 
@@ -873,7 +871,8 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         }
 
         var win_width = $(window).innerWidth();
-        var min_opened_chats = self.isMailboxActive() ? 0 : 1;
+        var min_opened_chats = typeof OW.Mailbox.newMessageFormController != "undefined" 
+                && OW.Mailbox.newMessageFormController.isNewMessageWindowActive() ? 0 : 1;
 
         if (win_width < chat_width && $('.mailboxDialogBlock.ow_open').length > min_opened_chats)
         {
@@ -1574,7 +1573,15 @@ OWMailbox.Dialog.Controller = function(model){
     });
 
     this.smallItemControl.click(function(){
-        OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+        if (typeof OW.Mailbox.newMessageFormController != "undefined") {
+            if (OW.Mailbox.newMessageFormController.closeNewMessageWindowWithConfirmation($('.mailboxDialogBlock.ow_open').length)) {
+                OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+            }
+        }
+        else {
+            OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+        }
+
         $('.ow_btn_dialogs').click();
     });
 

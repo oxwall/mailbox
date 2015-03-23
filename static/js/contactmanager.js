@@ -842,6 +842,15 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         return size;
     },
 
+    closeMailBox: function() {
+        alert('close');
+    },
+
+    isMailboxActive: function() {
+        var new_message_window = $('#newMessageWindow');
+        return OWMailbox.mailModeEnabled && new_message_window.length && new_message_window.is(":visible");
+    },
+ 
     fitWindow: function() {
         var self = this;
 
@@ -864,12 +873,16 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         }
 
         var win_width = $(window).innerWidth();
+        var min_opened_chats = self.isMailboxActive() ? 0 : 1;
 
-        if (win_width < chat_width && $('.mailboxDialogBlock.ow_open').length > 1)
+        if (win_width < chat_width && $('.mailboxDialogBlock.ow_open').length > min_opened_chats)
         {
             //Folding
             var dialogs = $('.mailboxDialogBlock.ow_open');
-            var box = dialogs[1];
+            var box = !min_opened_chats
+                ? (typeof dialogs[1] != "undefined" ? dialogs[1] : dialogs[0])
+                : dialogs[1];
+ 
             var convId = $(box).data('convId');
             OW.trigger('mailbox.move_dialog_to_chat_selector', {convId: convId});
 

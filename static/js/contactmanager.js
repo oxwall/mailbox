@@ -860,45 +860,51 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
 
         self.fitWindowNumber++;
 
+        // get width of the contact finder
+        var allChatsWidth = $('.ow_chat').outerWidth(true);
 
-        if (OWMailbox.chatModeEnabled)
-        {
-            var chat_width = $('.ow_chat').width() + $('.ow_chat_dialog_wrap').width() + $('.ow_chat_selector').width() + 20;
-        }
-        else
-        {
-            var chat_width = 264 + $('.ow_chat_dialog_wrap').width() + $('.ow_chat_selector').width() + 20;
-        }
+        // calculate all chats width
+        $("#dialogsContainer > div:visible").each(function(index, div) {
+            allChatsWidth += $(div).outerWidth(true);
+        });
 
-        var win_width = $(window).innerWidth();
-        var min_opened_chats = typeof OW.Mailbox.newMessageFormController != "undefined" 
+        // get the window inner width
+        var winWidth = $(window).innerWidth();
+ 
+        // do we need hide all chats?
+        var minOpenedChats = typeof OW.Mailbox.newMessageFormController != "undefined" 
                 && OW.Mailbox.newMessageFormController.isNewMessageWindowActive() ? 0 : 1;
 
-        if (win_width < chat_width && $('.mailboxDialogBlock.ow_open').length > min_opened_chats)
+        if (winWidth < allChatsWidth)
         {
-            //Folding
-            var dialogs = $('.mailboxDialogBlock.ow_open');
-            var box = !min_opened_chats
-                ? (typeof dialogs[1] != "undefined" ? dialogs[1] : dialogs[0])
-                : dialogs[1];
- 
-            var convId = $(box).data('convId');
-            OW.trigger('mailbox.move_dialog_to_chat_selector', {convId: convId});
+            // folding
+            if ($('.mailboxDialogBlock.ow_open').length > minOpenedChats) {
+                var dialogs = $('.mailboxDialogBlock.ow_open');
+                var box = !minOpenedChats
+                    ? (typeof dialogs[1] != "undefined" ? dialogs[1] : dialogs[0])
+                    : dialogs[1];
 
-            self.fitWindow();
+                var convId = $(box).data('convId');
+                OW.trigger('mailbox.move_dialog_to_chat_selector', {convId: convId});
+
+                self.fitWindow();
+            }
         }
-        else if (win_width > (chat_width + 260))
+        else 
         {
-            //Unfolding
+            // get last hidden chat box width
             if ($('.ow_chat_selector_items li.ow_dialog_in_selector').length > 0)
             {
                 var dialogs = $('div.mailboxDialogBlock.ow_hidden');
                 var box = dialogs.last();
-                var convId = $(box).data('convId');
-
-                OW.trigger('mailbox.remove_dialog_from_chat_selector', {convId: convId});
-
-                self.fitWindow();
+ 
+                if (winWidth > (allChatsWidth + $(box).outerWidth(true))) 
+                {
+                    // unfolding
+                    var convId = $(box).data('convId');
+                    OW.trigger('mailbox.remove_dialog_from_chat_selector', {convId: convId});
+                    self.fitWindow();
+                }
             }
         }
 

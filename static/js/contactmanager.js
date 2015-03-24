@@ -313,6 +313,10 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         this.model.unreadMessageList.on('add', this.addUnreadMessage, this);
         this.model.unreadMessageList.on('remove', this.removeUnreadMessage, this);
 
+        OW.bind('mailbox.draggable.drag', function(){
+            self.fitWindow();
+        });
+
         OW.bind('mailbox.message', function(message){
 
             var messagesOpened = false;
@@ -852,6 +856,7 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
     fitWindow: function() {
         var self = this;
 
+        // exit from recursion 
         if (self.fitWindowNumber > 20)
         {
             self.fitWindowNumber = 0;
@@ -897,7 +902,7 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
             {
                 var dialogs = $('div.mailboxDialogBlock.ow_hidden');
                 var box = dialogs.last();
- 
+
                 if (winWidth > (allChatsWidth + $(box).outerWidth(true))) 
                 {
                     // unfolding
@@ -2196,6 +2201,7 @@ OWMailbox.Dialog.Controller.prototype = {
                     }
                 }
                 self.messageListWrapper.height( self.dialogWindowHeight - ui.position.top );
+                OW.trigger('mailbox.draggable.drag', {"puller" : self.puller});
             },
             stop: function(event, ui){
                 if ( self.messageListWrapper.width() > $(window).innerWidth() * 0.8  )
@@ -2211,6 +2217,7 @@ OWMailbox.Dialog.Controller.prototype = {
                 self.diagPuller.css('left', '0px');
                 self.diagPuller.css('top', '0px');
                 OW.updateScroll(self.messageListWrapper);
+                OW.trigger('mailbox.draggable.stop', {"puller" : self.puller});
             },
             start: function(event, ui){
                 self.dialogWindowHeight = self.messageListWrapper.height();

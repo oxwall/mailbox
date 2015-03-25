@@ -363,6 +363,11 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
                         if (!message.conversationViewed && !conversationOpened && message.mode == 'chat' && dialog.model.status != 'offline' && !dialog.model.isOpened && !dialog.model.isActive){
                             dialog.showTab().open();
                             dialog.model.setIsSelected(false);
+
+                            // silent mode
+                            if (!self.model.get('soundEnabled')) {
+                                dialog.model.setIsActive(false);
+                            }
                         }
 
                         if ( dialog.model.isLoaded ){
@@ -1193,12 +1198,12 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         if (self.model.get('soundEnabled'))
         {
             $('#mailboxSoundPreference span').removeClass('ow_btn_sound_off');
-            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'disable_sounds'));
+            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'silent_mode_on'));
         }
         else
         {
             $('#mailboxSoundPreference span').addClass('ow_btn_sound_off');
-            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'enable_sounds'));
+            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'silent_mode_off'));
         }
 
         OW.hideTip($('#mailboxSoundPreference'));

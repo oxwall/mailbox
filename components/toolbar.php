@@ -180,8 +180,8 @@ class MAILBOX_CMP_Toolbar extends OW_Component
         OW::getLanguage()->addKeyForJs('base', 'user_block_message');
         OW::getLanguage()->addKeyForJs('mailbox', 'send_message_failed');
         OW::getLanguage()->addKeyForJs('mailbox', 'confirm_conversation_delete');
-        OW::getLanguage()->addKeyForJs('mailbox', 'disable_sounds');
-        OW::getLanguage()->addKeyForJs('mailbox', 'enable_sounds');
+        OW::getLanguage()->addKeyForJs('mailbox', 'silent_mode_off');
+        OW::getLanguage()->addKeyForJs('mailbox', 'silent_mode_on');
         OW::getLanguage()->addKeyForJs('mailbox', 'show_all_users');
         OW::getLanguage()->addKeyForJs('mailbox', 'show_all_users');
         OW::getLanguage()->addKeyForJs('mailbox', 'show_online_only');

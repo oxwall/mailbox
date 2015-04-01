@@ -66,7 +66,9 @@ class MAILBOX_BOL_AjaxService {
             return array('error'=>"Conversation is not defined");
         }
 
-        if ( empty($params['text']) )
+        $validator = new WyswygRequiredValidator();
+
+        if ( !$validator->isValid($params['text']) )
         {
             return array('error'=>$language->text('mailbox', 'chat_message_empty'));
         }

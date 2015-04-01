@@ -1279,8 +1279,13 @@ MAILBOX_ConversationView = function () {
     this.sendMessageBtn.bind('click', function(){
 
         var text = self.textareaControl.val();
+        var checkText = text;
+ 
+        // process value
+        checkText = checkText.replace(/\&nbsp;|&nbsp/ig,'');
+        checkText = checkText.replace(/(<([^>]+)>)/ig,''); 
 
-        if ( $.trim(text) == ''){
+        if ( !$.trim(checkText).length ){
             OW.error(OW.getLanguageText('mailbox', 'chat_message_empty'));
             return;
         }

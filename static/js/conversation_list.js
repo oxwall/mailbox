@@ -1335,8 +1335,6 @@ MAILBOX_ConversationView = function () {
             self.messageFormBlock.addClass('ow_hidden');
             self.textareaControl = $('#dialogTextarea', self.control);
 
-            self.textareaControl = $('#dialogTextarea', self.control);
-
             $(self.textareaControl).bind('focus.invitation', {},
                 function(e){
                     el = $(this);

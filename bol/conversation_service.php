@@ -1905,15 +1905,15 @@ final class MAILBOX_BOL_ConversationService
                 $item['conversationViewed'] = (bool)((int)$conversation['viewed'] & MAILBOX_BOL_ConversationDao::VIEW_INTERLOCUTOR);
             }
 
-//            if ($mode == 'chat')
-//            {
-//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
-//            }
-//
-//            if ($mode == 'mail')
-//            {
-//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_mail_conversation', array('convId'=>$conversationId));
-//            }
+            if ($mode == 'chat')
+            {
+                $item['url'] = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
+            }
+
+            if ($mode == 'mail')
+            {
+                $item['url'] = OW::getRouter()->urlForRoute('mailbox_mail_conversation', array('convId'=>$conversationId));
+            }
 
             $convInfoList[] = $item;
         }

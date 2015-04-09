@@ -1870,6 +1870,7 @@ final class MAILBOX_BOL_ConversationService
 
             $item = array();
 
+            $item['userId'] = (int)$opponentId; // Backward compatibility
             $item['conversationId'] = $conversationId;
             $item['opponentId'] = (int)$opponentId;
             $item['mode'] = $mode;
@@ -3337,7 +3338,7 @@ final class MAILBOX_BOL_ConversationService
      */
     public function getUnreadMessageCount( $userId )
     {
-        $messageList = $this->messageDao->findUnreadMessages($userId, array(), time());
+        $messageList = $this->messageDao->findUnreadMessages($userId, array(), time(), $this->getActiveModeList());
 
         $winkList = array();
         if (OW::getPluginManager()->isPluginActive('winks'))
@@ -3703,7 +3704,7 @@ final class MAILBOX_BOL_ConversationService
     {
         $list = array();
 
-        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp);
+        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp, $this->getActiveModeList());
 
         foreach($messages as $id=>$message)
         {

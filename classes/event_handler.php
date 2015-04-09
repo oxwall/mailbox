@@ -1292,8 +1292,19 @@ class MAILBOX_CLASS_EventHandler
         $params = $event->getParams();
 
         $userId = $params['userId'];
-        $conversationId = $params['conversationId'];
-
+        
+        if ( empty($params['conversationId']) ) // Backward compatibility
+        {
+            if ( !empty($params['opponentId']) )
+            {
+                $conversationId = $this->service->getChatConversationIdWithUserById($userId, $params['opponentId']);
+            }
+        }
+        else
+        {
+            $conversationId = $params['conversationId'];
+        }
+        
         $data = $this->service->getMessagesForApi($userId, $conversationId);
 
         $event->setData($data);

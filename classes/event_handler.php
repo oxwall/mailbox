@@ -66,7 +66,9 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('base.ping', array($this, 'onPing'));
         OW::getEventManager()->bind('base.ping.notifications', array($this, 'onApiPing'), 1);
         OW::getEventManager()->bind('mailbox.ping', array($this, 'onPing'));
+        OW::getEventManager()->bind('mailbox.mark_as_read', array($this, 'onMarkAsRead'));
         OW::getEventManager()->bind('mailbox.mark_unread', array($this, 'onMarkUnread'));
+        OW::getEventManager()->bind('mailbox.get_conversation_id', array($this, 'getConversationId'));
         OW::getEventManager()->bind('mailbox.delete_conversation', array($this, 'onDeleteConversation'));
         OW::getEventManager()->bind('mailbox.create_conversation', array($this, 'onCreateConversation'));
         OW::getEventManager()->bind('mailbox.authorize_action', array($this, 'onAuthorizeAction'));
@@ -1385,17 +1387,48 @@ class MAILBOX_CLASS_EventHandler
         }
     }
 
-    public function onMarkUnread( OW_Event $event )
+    public function onMarkAsRead( OW_Event $event )
     {
         $params = $event->getParams();
 
-        $this->service->markUnread(array($params['conversationId']), $params['userId']);
+        $count = $this->service->markRead(is_array($params['conversationId']) ? $params['conversationId'] : array($params['conversationId']), $params['userId']);
 
         $event->setData($count);
 
         return $count;
     }
 
+    public function onMarkUnread( OW_Event $event )
+    {
+        $params = $event->getParams();
+
+        $count = $this->service->markUnread(is_array($params['conversationId']) ? $params['conversationId'] : array($params['conversationId']), $params['userId']);
+
+        $event->setData($count);
+
+        return $count;
+    }
+
+    public function getConversationId( OW_Event $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['userId']) || empty($params['opponentId']) )
+        {
+            $event->setData(null);
+
+            return null;
+        }
+
+        $userId = (int)$params['userId'];
+        $opponentId = (int)$params['opponentId'];
+
+        $conversationId = $this->service->getChatConversationIdWithUserById($userId, $opponentId);
+        $event->setData($conversationId);
+
+        return $conversationId;
+    }
+    
     public function onDeleteConversation( OW_Event $event )
     {
         $params = $event->getParams();

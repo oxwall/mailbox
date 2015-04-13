@@ -260,7 +260,7 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
 
     changePreviewText: function(){
         if (this.model.get('mode') == 'mail'){
-            $('#conversationItemPreviewText', this.$el).html( OW.getLanguageText('mailbox', this.model.get('mode')+'_subject_prefix') + this.model.get('previewText') );
+            $('#conversationItemPreviewText', this.$el).html( OW.getLanguageText('mailbox', this.model.get('mode')+'_subject_prefix') + this.model.get('subject') );
         }
 
         if (this.model.get('mode') == 'chat'){

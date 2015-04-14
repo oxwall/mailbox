@@ -1489,7 +1489,7 @@ MAILBOX_Mobile = Backbone.Model.extend({
                 $.each(data.messageList, function(){
                     if (this.timeStamp != self.lastMessageTimestamp)
                     {
-                        if (OWM.mailboxConversations){
+                        if (typeof OWM.mailboxConversations != "undefined"){
                             OWM.mailboxConversations.itemList.findWhere({conversationId: this.convId}).set('lastMessageTimestamp', this.timeStamp);
                         }
 

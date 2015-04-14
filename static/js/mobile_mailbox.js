@@ -465,6 +465,10 @@ MAILBOX_ConversationsView = Backbone.View.extend({
     },
 
     renderItem: function(item){
+        if (item.get('mode') == 'mail'){
+            item.set('previewText', item.get('subject'));
+        }
+
         var view = new MAILBOX_ConversationItemView({model: item});
 
         var itemIndex = this.model.itemList.indexOf(item);

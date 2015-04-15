@@ -465,6 +465,10 @@ MAILBOX_ConversationsView = Backbone.View.extend({
     },
 
     renderItem: function(item){
+        if (item.get('mode') == 'mail'){
+            item.set('previewText', item.get('subject'));
+        }
+
         var view = new MAILBOX_ConversationItemView({model: item});
 
         var itemIndex = this.model.itemList.indexOf(item);
@@ -1485,7 +1489,7 @@ MAILBOX_Mobile = Backbone.Model.extend({
                 $.each(data.messageList, function(){
                     if (this.timeStamp != self.lastMessageTimestamp)
                     {
-                        if (OWM.mailboxConversations){
+                        if (typeof OWM.mailboxConversations != "undefined"){
                             OWM.mailboxConversations.itemList.findWhere({conversationId: this.convId}).set('lastMessageTimestamp', this.timeStamp);
                         }
 

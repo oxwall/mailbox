@@ -1433,7 +1433,7 @@ class MAILBOX_CLASS_EventHandler
     {
         $params = $event->getParams();
 
-        $count = $this->service->deleteConversation(array($params['conversationId']), $params['userId']);
+        $count = $this->service->deleteConversation(is_array($params['conversationId']) ? $params['conversationId'] : array($params['conversationId']), $params['userId']);
 
         $event->setData($count);
 

@@ -1081,8 +1081,10 @@ class MAILBOX_CLASS_EventHandler
     {
         $params = $event->getParams();
         $userId = $params['userId'];
+        $ignoreList = !empty($params['ignoreList']) ? (array)$params['ignoreList'] : array();
+        $time = !empty($params['time']) ? (int)$params['time'] : time();
 
-        $data = $this->service->getUnreadMessageCount($userId);
+        $data = $this->service->getUnreadMessageCount($userId, $ignoreList, $time);
 
         $event->setData( $data );
 

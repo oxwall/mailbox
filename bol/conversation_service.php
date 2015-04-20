@@ -3336,9 +3336,12 @@ final class MAILBOX_BOL_ConversationService
     /**
      * Application event methods
      */
-    public function getUnreadMessageCount( $userId )
+    public function getUnreadMessageCount( $userId, $ignoreList = array(), $time = null, $activeModes = array() )
     {
-        $messageList = $this->messageDao->findUnreadMessages($userId, array(), time(), $this->getActiveModeList());
+        $ignoreList = empty($ignoreList) ? array() : (array)$ignoreList;
+        $time = $time == null ? time() : (int)$time;
+        $activeModes = empty($activeModes) ? $this->getActiveModeList() : $activeModes;
+        $messageList = $this->messageDao->findUnreadMessages($userId, $ignoreList, $time, $activeModes);
 
         $winkList = array();
         if (OW::getPluginManager()->isPluginActive('winks'))

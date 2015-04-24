@@ -1806,7 +1806,7 @@ OWMailbox.Dialog.Controller = function(model){
                 });
             }
             self.chatBlock.addClass('ow_chat_block_active');
-            self.textareaControl.focus();
+            //self.textareaControl.focus();
             OW.trigger('mailbox.dialog_selected', {convId: self.model.convId});
         }
         else{

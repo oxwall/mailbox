@@ -259,7 +259,7 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
 
     changePreviewText: function(){
         if (this.model.get('mode') == 'mail'){
-            $('#conversationItemPreviewText', this.$el).html( OW.getLanguageText('mailbox', this.model.get('mode')+'_subject_prefix') + this.model.get('previewText') );
+            $('#conversationItemPreviewText', this.$el).html( OW.getLanguageText('mailbox', this.model.get('mode')+'_subject_prefix') + this.model.get('subject') );
         }
 
         if (this.model.get('mode') == 'chat'){
@@ -1278,8 +1278,13 @@ MAILBOX_ConversationView = function () {
     this.sendMessageBtn.bind('click', function(){
 
         var text = self.textareaControl.val();
+        var checkText = text;
+ 
+        // process value
+        checkText = checkText.replace(/\&nbsp;|&nbsp/ig,'');
+        checkText = checkText.replace(/(<([^>]+)>)/ig,''); 
 
-        if ( $.trim(text) == ''){
+        if ( !$.trim(checkText).length ){
             OW.error(OW.getLanguageText('mailbox', 'chat_message_empty'));
             return;
         }
@@ -1327,8 +1332,6 @@ MAILBOX_ConversationView = function () {
             self.control.addClass('ow_mailbox_right_chat');
             self.conversationChatFormBlock.removeClass('ow_hidden');
             self.messageFormBlock.addClass('ow_hidden');
-            self.textareaControl = $('#dialogTextarea', self.control);
-
             self.textareaControl = $('#dialogTextarea', self.control);
 
             $(self.textareaControl).bind('focus.invitation', {},

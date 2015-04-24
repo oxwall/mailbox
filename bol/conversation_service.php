@@ -1870,6 +1870,7 @@ final class MAILBOX_BOL_ConversationService
 
             $item = array();
 
+            $item['userId'] = (int)$opponentId; // Backward compatibility
             $item['conversationId'] = $conversationId;
             $item['opponentId'] = (int)$opponentId;
             $item['mode'] = $mode;
@@ -1905,15 +1906,15 @@ final class MAILBOX_BOL_ConversationService
                 $item['conversationViewed'] = (bool)((int)$conversation['viewed'] & MAILBOX_BOL_ConversationDao::VIEW_INTERLOCUTOR);
             }
 
-//            if ($mode == 'chat')
-//            {
-//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
-//            }
-//
-//            if ($mode == 'mail')
-//            {
-//                $item['url'] = OW::getRouter()->urlForRoute('mailbox_mail_conversation', array('convId'=>$conversationId));
-//            }
+            if ($mode == 'chat')
+            {
+                $item['url'] = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$opponentId));
+            }
+
+            if ($mode == 'mail')
+            {
+                $item['url'] = OW::getRouter()->urlForRoute('mailbox_mail_conversation', array('convId'=>$conversationId));
+            }
 
             $convInfoList[] = $item;
         }
@@ -3335,9 +3336,12 @@ final class MAILBOX_BOL_ConversationService
     /**
      * Application event methods
      */
-    public function getUnreadMessageCount( $userId )
+    public function getUnreadMessageCount( $userId, $ignoreList = array(), $time = null, $activeModes = array() )
     {
-        $messageList = $this->messageDao->findUnreadMessages($userId, array(), time());
+        $ignoreList = empty($ignoreList) ? array() : (array)$ignoreList;
+        $time = $time == null ? time() : (int)$time;
+        $activeModes = empty($activeModes) ? $this->getActiveModeList() : $activeModes;
+        $messageList = $this->messageDao->findUnreadMessages($userId, $ignoreList, $time, $activeModes);
 
         $winkList = array();
         if (OW::getPluginManager()->isPluginActive('winks'))
@@ -3703,7 +3707,7 @@ final class MAILBOX_BOL_ConversationService
     {
         $list = array();
 
-        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp);
+        $messages = $this->messageDao->findUnreadMessages($userId, $ignoreList, $timeStamp, $this->getActiveModeList());
 
         foreach($messages as $id=>$message)
         {

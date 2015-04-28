@@ -5,8 +5,7 @@ $sql = array(
     'UPDATE 
             `' . OW_DB_PREFIX . 'mailbox_conversation` 
      SET 
-        `interlocutorDeletedTimestamp` = UNIX_TIMESTAMP(), 
-        `interlocutorAffected` = 1 
+        `interlocutorDeletedTimestamp` = UNIX_TIMESTAMP()
      WHERE 
         `deleted` = 2 
             AND 
@@ -16,8 +15,7 @@ $sql = array(
     'UPDATE 
         `' . OW_DB_PREFIX . 'mailbox_conversation` 
      SET 
-        `initiatorDeletedTimestamp` = UNIX_TIMESTAMP(), 
-        `initiatorAffected` = 1 
+        `initiatorDeletedTimestamp` = UNIX_TIMESTAMP()
      WHERE 
         `deleted` = 1 
             AND 

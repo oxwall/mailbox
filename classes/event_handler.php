@@ -1298,6 +1298,8 @@ class MAILBOX_CLASS_EventHandler
 
         if ( empty($params['conversationId']) )
         {
+            $event->setData(array());
+            
             return array();
         }
 

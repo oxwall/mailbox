@@ -105,6 +105,7 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('mailbox.post_message', array($this, 'postMessage'));
         OW::getEventManager()->bind('mailbox.post_reply_message', array($this, 'postReplyMessage'));
         OW::getEventManager()->bind('mailbox.get_new_messages', array($this, 'getNewMessages'));
+        OW::getEventManager()->bind('mailbox.get_new_messages_for_conversation', array($this, 'getNewMessagesForConversation'));
         OW::getEventManager()->bind('mailbox.get_messages', array($this, 'getMessages'));
         OW::getEventManager()->bind('mailbox.get_history', array($this, 'getHistory'));
         OW::getEventManager()->bind('mailbox.show_send_message_button', array($this, 'showSendMessageButton'));
@@ -1291,6 +1292,25 @@ class MAILBOX_CLASS_EventHandler
         return $data;
     }
 
+    public function getNewMessagesForConversation( OW_Event $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['conversationId']) )
+        {
+            $event->setData(array());
+            
+            return array();
+        }
+
+        $conversationId = (int)$params['conversationId'];
+        $lastMessageTimestamp = !empty($params['lastMessageTimestamp']) ? (int)$params['lastMessageTimestamp'] : null;
+        $messages = $this->service->getNewMessagesForConversation($conversationId, $lastMessageTimestamp);
+        $event->setData($messages);
+
+        return $messages;
+    }
+
     public function getMessages( OW_Event $event )
     {
         $params = $event->getParams();
@@ -1449,6 +1469,14 @@ class MAILBOX_CLASS_EventHandler
         $opponentId = $params['opponentId'];
         $text = $params['text'];
         $subject = $params['subject'];
+
+        $userSendMessageIntervalOk = $this->service->checkUserSendMessageInterval($userId);
+
+        if ( !$userSendMessageIntervalOk )
+        {
+            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+            throw new InvalidArgumentException(OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)));
+        }
 
         $conversation = $this->service->createConversation($userId, $opponentId, $subject, $text);
 

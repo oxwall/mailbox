@@ -582,28 +582,32 @@ class MAILBOX_BOL_AjaxService {
 
         $limitStr = $limit === null ? '' : 'LIMIT 0, ' . intval($limit);
 
-        $queryParts = BOL_UserDao::getInstance()->getUserQueryFilter("qd", "userId", array(
+        $queryParts = BOL_UserDao::getInstance()->getUserQueryFilter("u", "id", array(
             "method" => "MAILBOX_BOL_AjaxService::findUsers"
         ));
 
         $params = array('kw' => $kw . '%');
+        $order = '';
 
         if ( $kw !== null )
         {
             if ( $questionName == "username" )
             {
-                $queryParts["where"] .= " AND base_user_table_alias.username LIKE :kw";
+                $order = ' ORDER BY `u`.`username`';
+                $queryParts["where"] .= " AND `u`.`username` LIKE :kw";
             }
             else
             {
+                $order = ' ORDER BY `qd`.`textValue`';
                 $params['questionName'] = $questionName;
                 $queryParts["where"] .= " AND qd.questionName=:questionName AND qd.textValue LIKE :kw";
+                $queryParts['join'] .= ' INNER JOIN `' . BOL_QuestionDataDao::getInstance()->getTableName() . '` AS `qd` ON(`u`.`id` = `qd`.`userId`) ';
             }
         }
 
-        $query = 'SELECT DISTINCT qd.userId FROM ' . $questionDataTable . ' qd
+        $query = 'SELECT DISTINCT u.id FROM `' . BOL_UserDao::getInstance()->getTableName() . '` u
             '.$queryParts['join'].'
-            WHERE '.$queryParts['where'].' ORDER BY `textValue` '. $limitStr;
+            WHERE '.$queryParts['where'] . $order . ' ' . $limitStr;
 
         return OW::getDbo()->queryForColumnList($query, $params);
     }

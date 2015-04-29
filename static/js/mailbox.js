@@ -538,6 +538,44 @@ OWMailbox.NewMessageForm.Controller = function(model){
     self.unselectedCapMinimizeBtn = $('#newMessageWindowUnselectedCapMinimizeBtn');
     self.unselectedCapCloseBtn = $('#newMessageWindowUnselectedCapCloseBtn');
 
+    /**
+     * Check new message window active mode
+     * 
+     * @return boolean
+     */
+    this.isNewMessageWindowActive = function() {
+        return self.newMessageWindowControl.length && self.newMessageWindowControl.is(":visible");
+    }
+ 
+    /**
+     * Close active mailbox window with confirmation
+     * 
+     * @param integer activeChats
+     * @return boolean
+     */
+    this.closeNewMessageWindowWithConfirmation = function(activeChats) {
+        if (this.isNewMessageWindowActive() && !activeChats) {
+            var subject = owForms['mailbox-new-message-form'].elements['subject'].getValue();
+            var message = owForms['mailbox-new-message-form'].elements['message'].getValue();
+
+            // close the window without confirmation
+            if (!$.trim(subject) && !$.trim(message)) {
+                this.close();
+                return true;
+            }
+ 
+            var result = confirm(OW.getLanguageText('mailbox', 'close_new_message_window_confirmation'));
+            if (result) {
+                // close the new mailbox window
+                this.close();
+            }
+ 
+            return result;
+        }
+
+        return true;
+    }
+
     this.close = function(){
         OW.trigger('mailbox.close_new_message_form');
     };

@@ -586,14 +586,26 @@ class MAILBOX_BOL_AjaxService {
             "method" => "MAILBOX_BOL_AjaxService::findUsers"
         ));
 
+        $params = array('kw' => $kw . '%');
+
+        if ( $kw !== null )
+        {
+            if ( $questionName == "username" )
+            {
+                $queryParts["where"] .= " AND base_user_table_alias.username LIKE :kw";
+            }
+            else
+            {
+                $params['questionName'] = $questionName;
+                $queryParts["where"] .= " AND qd.questionName=:questionName AND qd.textValue LIKE :kw";
+            }
+        }
+
         $query = 'SELECT DISTINCT qd.userId FROM ' . $questionDataTable . ' qd
             '.$queryParts['join'].'
-            WHERE '.$queryParts['where'].' AND questionName=:name AND textValue LIKE :kw ORDER BY `textValue` '. $limitStr;
+            WHERE '.$queryParts['where'].' ORDER BY `textValue` '. $limitStr;
 
-        return OW::getDbo()->queryForColumnList($query, array(
-            'kw' =>  $kw . '%',
-            'name' => $questionName
-        ));
+        return OW::getDbo()->queryForColumnList($query, $params);
     }
 
     protected function buildData( $userIds, $group = null, $ignoreUserIds = array() )

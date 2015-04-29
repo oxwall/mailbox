@@ -3509,6 +3509,30 @@ final class MAILBOX_BOL_ConversationService
         return $list;
     }
 
+
+    public function getNewMessagesForConversation( $conversationId, $lastMessageTimestamp = null )
+    {
+        if ( ($conversation = $this->getConversation($conversationId)) === null )
+        {
+            return array();
+        }
+
+        if ( empty($lastMessageTimestamp) )
+        {
+            $lastMessageTimestamp = time();
+        }
+
+        $result = array();
+        $messageList = $this->messageDao->findConversationMessagesByLastMessageTimestamp($conversation->id, $lastMessageTimestamp);
+
+        foreach ( $messageList as $message )
+        {
+            $result[] = $this->getMessageDataForApi($message);
+        }
+
+        return $result;
+    }
+
     /**
      * @param MAILBOX_BOL_Message $message
      * @return array

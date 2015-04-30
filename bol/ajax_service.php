@@ -376,7 +376,7 @@ class MAILBOX_BOL_AjaxService {
             else
             {
                 $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
-                if ($status['status'] = BOL_AuthorizationService::STATUS_PROMOTED)
+                if ($status['status'] == BOL_AuthorizationService::STATUS_PROMOTED)
                 {
                     return array('error'=>$status['msg']);
                 }

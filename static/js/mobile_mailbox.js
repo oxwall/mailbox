@@ -350,7 +350,7 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
             $('#mailboxSidebarItemConversationsMode', this.$el).addClass('owm_sidebar_convers_status_chat');
         }
 
-        if (this.model.get('status') != 'offline'){
+        if (this.model.get('onlineStatus') !== false){
             $('#mailboxSidebarConversationsItemOnlineStatus', this.$el).show();
         }
 

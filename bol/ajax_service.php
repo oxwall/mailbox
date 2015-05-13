@@ -364,7 +364,9 @@ class MAILBOX_BOL_AjaxService {
                 $actionName = 'read_chat_message';
             }
 
-            $trackResult = BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
+            $trackResult = BOL_AuthorizationService::getInstance()->
+                    trackAction('mailbox', $actionName, array('checkInterval' => false));
+
             if ($trackResult['status'])
             {
                 $message = $conversationService->markMessageAuthorizedToRead($messageId);

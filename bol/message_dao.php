@@ -153,6 +153,7 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
         $example = new OW_Example();
         $example->andFieldGreaterThan('id', (int) $messageId);
         $example->setOrder(" id ");
+        $example->setLimitClause(0, $limit);
 
         return $this->findListByExample($example);
     }

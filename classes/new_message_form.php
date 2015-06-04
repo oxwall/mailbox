@@ -137,7 +137,8 @@ class MAILBOX_CLASS_NewMessageForm extends Form
     protected function initStatic()
     {
         $language = OW::getLanguage();
-        
+        $language->addKeyForJs('mailbox', 'close_new_message_window_confirmation');
+
         $messageError = $language->text('mailbox', 'create_conversation_fail_message');
         $messageSuccess = $language->text('mailbox', 'create_conversation_message');
 

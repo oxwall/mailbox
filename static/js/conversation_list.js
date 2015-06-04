@@ -121,9 +121,8 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
                 }
             }
 
-            var w = $('#messagesContainerControl').width();
-
-            $('#conversationItemListSub').css('width', 0.359375 * w);
+            //var w = $('#messagesContainerControl').width(); I don't know what what is it ??
+            //$('#conversationItemListSub').css('width', 0.359375 * w);
         });
 
         OW.bind('mailbox.conversation_marked_unread', function(data){

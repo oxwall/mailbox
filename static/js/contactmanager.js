@@ -99,7 +99,14 @@ MAILBOX_ContactView = Backbone.View.extend({
         }, this);
 
         this.$el.click(function (){
-            OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+            if (typeof OW.Mailbox.newMessageFormController != "undefined") {
+                if (OW.Mailbox.newMessageFormController.closeNewMessageWindowWithConfirmation($('.mailboxDialogBlock.ow_open').length)) {
+                    OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+                }  
+            }
+            else {
+                OW.trigger('mailbox.open_dialog', {convId: self.model.get('convId'), opponentId: self.model.get('opponentId'), mode: 'chat', isSelected: true, isActive: true});
+            }
         });
 
         OW.bind('mailbox.presence', function(presence){
@@ -306,6 +313,10 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         this.model.unreadMessageList.on('add', this.addUnreadMessage, this);
         this.model.unreadMessageList.on('remove', this.removeUnreadMessage, this);
 
+        OW.bind('mailbox.draggable.drag', function(){
+            self.fitWindow();
+        });
+
         OW.bind('mailbox.message', function(message){
 
             var messagesOpened = false;
@@ -352,6 +363,11 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
                         if (!message.conversationViewed && !conversationOpened && message.mode == 'chat' && dialog.model.status != 'offline' && !dialog.model.isOpened && !dialog.model.isActive){
                             dialog.showTab().open();
                             dialog.model.setIsSelected(false);
+
+                            // silent mode
+                            if (!self.model.get('soundEnabled')) {
+                                dialog.model.setIsActive(false);
+                            }
                         }
 
                         if ( dialog.model.isLoaded ){
@@ -845,6 +861,7 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
     fitWindow: function() {
         var self = this;
 
+        // exit from recursion 
         if (self.fitWindowNumber > 20)
         {
             self.fitWindowNumber = 0;
@@ -853,40 +870,51 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
 
         self.fitWindowNumber++;
 
+        // get width of the contact finder
+        var allChatsWidth = $('.ow_chat').outerWidth(true);
 
-        if (OWMailbox.chatModeEnabled)
+        // calculate all chats width
+        $("#dialogsContainer > div:visible").each(function(index, div) {
+            allChatsWidth += $(div).outerWidth(true);
+        });
+
+        // get the window inner width
+        var winWidth = $(window).innerWidth();
+ 
+        // do we need hide all chats?
+        var minOpenedChats = typeof OW.Mailbox.newMessageFormController != "undefined" 
+                && OW.Mailbox.newMessageFormController.isNewMessageWindowActive() ? 0 : 1;
+
+        if (winWidth < allChatsWidth)
         {
-            var chat_width = $('.ow_chat').width() + $('.ow_chat_dialog_wrap').width() + $('.ow_chat_selector').width() + 20;
+            // folding
+            if ($('.mailboxDialogBlock.ow_open').length > minOpenedChats) {
+                var dialogs = $('.mailboxDialogBlock.ow_open');
+                var box = !minOpenedChats
+                    ? (typeof dialogs[1] != "undefined" ? dialogs[1] : dialogs[0])
+                    : dialogs[1];
+
+                var convId = $(box).data('convId');
+                OW.trigger('mailbox.move_dialog_to_chat_selector', {convId: convId});
+
+                self.fitWindow();
+            }
         }
-        else
+        else 
         {
-            var chat_width = 264 + $('.ow_chat_dialog_wrap').width() + $('.ow_chat_selector').width() + 20;
-        }
-
-        var win_width = $(window).innerWidth();
-
-        if (win_width < chat_width && $('.mailboxDialogBlock.ow_open').length > 1)
-        {
-            //Folding
-            var dialogs = $('.mailboxDialogBlock.ow_open');
-            var box = dialogs[1];
-            var convId = $(box).data('convId');
-            OW.trigger('mailbox.move_dialog_to_chat_selector', {convId: convId});
-
-            self.fitWindow();
-        }
-        else if (win_width > (chat_width + 260))
-        {
-            //Unfolding
+            // get last hidden chat box width
             if ($('.ow_chat_selector_items li.ow_dialog_in_selector').length > 0)
             {
                 var dialogs = $('div.mailboxDialogBlock.ow_hidden');
                 var box = dialogs.last();
-                var convId = $(box).data('convId');
 
-                OW.trigger('mailbox.remove_dialog_from_chat_selector', {convId: convId});
-
-                self.fitWindow();
+                if (winWidth > (allChatsWidth + $(box).outerWidth(true))) 
+                {
+                    // unfolding
+                    var convId = $(box).data('convId');
+                    OW.trigger('mailbox.remove_dialog_from_chat_selector', {convId: convId});
+                    self.fitWindow();
+                }
             }
         }
 
@@ -1170,12 +1198,12 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
         if (self.model.get('soundEnabled'))
         {
             $('#mailboxSoundPreference span').removeClass('ow_btn_sound_off');
-            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'disable_sounds'));
+            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'silent_mode_on'));
         }
         else
         {
             $('#mailboxSoundPreference span').addClass('ow_btn_sound_off');
-            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'enable_sounds'));
+            $('#mailboxSoundPreference').attr('title', OW.getLanguageText('mailbox', 'silent_mode_off'));
         }
 
         OW.hideTip($('#mailboxSoundPreference'));
@@ -1561,7 +1589,15 @@ OWMailbox.Dialog.Controller = function(model){
     });
 
     this.smallItemControl.click(function(){
-        OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+        if (typeof OW.Mailbox.newMessageFormController != "undefined") {
+            if (OW.Mailbox.newMessageFormController.closeNewMessageWindowWithConfirmation($('.mailboxDialogBlock.ow_open').length)) {
+                OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+            }
+        }
+        else {
+            OW.trigger('mailbox.open_dialog', {convId: self.model.convId, opponentId: self.model.convId, mode: self.model.mode});
+        }
+
         $('.ow_btn_dialogs').click();
     });
 
@@ -2170,6 +2206,7 @@ OWMailbox.Dialog.Controller.prototype = {
                     }
                 }
                 self.messageListWrapper.height( self.dialogWindowHeight - ui.position.top );
+                OW.trigger('mailbox.draggable.drag', {"puller" : self.puller});
             },
             stop: function(event, ui){
                 if ( self.messageListWrapper.width() > $(window).innerWidth() * 0.8  )
@@ -2185,6 +2222,7 @@ OWMailbox.Dialog.Controller.prototype = {
                 self.diagPuller.css('left', '0px');
                 self.diagPuller.css('top', '0px');
                 OW.updateScroll(self.messageListWrapper);
+                OW.trigger('mailbox.draggable.stop', {"puller" : self.puller});
             },
             start: function(event, ui){
                 self.dialogWindowHeight = self.messageListWrapper.height();

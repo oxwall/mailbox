@@ -1238,14 +1238,14 @@ class MAILBOX_CLASS_EventHandler
             $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
             if ($status['status'] == BOL_AuthorizationService::STATUS_PROMOTED)
             {
-                $data = array('error' => true, 'message'=>strip_tags($status['msg']));
+                $data = array('error' => true, 'message'=>strip_tags($status['msg']), "promoted" => true);
             }
             else
             {
                 if ($status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE)
                 {
                     $language = OW::getLanguage();
-                    $data = array('error' => true, 'message'=>$language->text('mailbox', $actionName.'_permission_denied'));
+                    $data = array('error' => true, 'message'=>$language->text('mailbox', $actionName.'_permission_denied'), "promoted" => false);
                 }
             }
             $event->setData($data);

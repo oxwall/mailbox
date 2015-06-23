@@ -3789,7 +3789,7 @@ final class MAILBOX_BOL_ConversationService
         $attachDtoList = $this->attachmentDao->getAttachmentForDelete();        
      
         foreach ($attachDtoList as $attachDto)
-        {   /* @var $DTO MAILBOX_BOL_Attachment */
+        {   /* @var $attachDto MAILBOX_BOL_Attachment */
             $ext = UTIL_File::getExtension($attachDto->fileName);
             $attachmentPath = $this->getAttachmentFilePath($attachDto->id, $attachDto->hash, $ext, $attachDto->fileName);
               

@@ -197,7 +197,7 @@ GROUP BY `m`.`conversationId`";
     
     public function getAttachmentForDelete()
     {
-          $sql = "SELECT `attach`.`id` AS attachId, hash, fileName, `attach`.`messageId` AS messageId, `msg`.`id`
+          $sql = "SELECT `attach`.* 
                   FROM {$this->getTableName()} AS attach
                   LEFT OUTER JOIN `". MAILBOX_BOL_MessageDao::getInstance()->getTableName(). "` AS msg ON `attach`.`messageId` = `msg`.`id`
                   WHERE `msg`.`id` IS NULL

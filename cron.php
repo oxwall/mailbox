@@ -43,7 +43,7 @@ class MAILBOX_Cron extends OW_Cron
         }
 
         $this->addJob('resetAllUsersLastData', 1);
-        $this->addJob('deleteAttachmentFiles', 1440);
+        $this->addJob('deleteAttachmentFiles', 1440); //1 day
     }
 
     public function run()

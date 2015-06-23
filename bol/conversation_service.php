@@ -488,6 +488,8 @@ final class MAILBOX_BOL_ConversationService
         }
 
         $attachmentsByMessageList = $this->findAttachmentsByMessageIdList($messageIdList);
+        //printVar($attachmentsByMessageList);
+        //exit;
 
         $list = array();
         foreach($dtoList as $message)
@@ -3782,5 +3784,19 @@ final class MAILBOX_BOL_ConversationService
         }
 
         return true;
+    }
+    
+    public function deleteAttachmentFiles()  // this method has calling from cron
+    {
+        $attachData = $this->attachmentDao->getAttachmentFilesForDelete();
+        
+        foreach ($attachData as $data)
+        {
+            $ext = UTIL_File::getExtension($data['fileName']);
+            $attachmentPath = $this->getAttachmentFilePath($data['attachId'], $data['hash'], $ext, $data['fileName']);
+            $this->attachmentDao->deleteAttachmentFiles($attachmentPath);
+            $this->attachmentDao->deleteById($data['attachId']);
+        }        
+        
     }
 }

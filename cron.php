@@ -43,6 +43,7 @@ class MAILBOX_Cron extends OW_Cron
         }
 
         $this->addJob('resetAllUsersLastData', 1);
+        $this->addJob('deleteAttachmentFiles', 2);
     }
 
     public function run()
@@ -66,5 +67,10 @@ WHERE uo.id IS NULL";
         {
             MAILBOX_BOL_ConversationService::getInstance()->resetAllUsersLastData();
         }
+    }
+    
+    public function deleteAttachmentFiles()
+    {
+        MAILBOX_BOL_ConversationService::getInstance()->deleteAttachmentFiles();
     }
 }

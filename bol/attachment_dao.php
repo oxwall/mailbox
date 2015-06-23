@@ -194,6 +194,29 @@ GROUP BY `m`.`conversationId`";
 
         return $this->dbo->queryForColumnList($sql);
     }
+    
+    public function getAttachmentFilesForDelete()
+    {
+          $sql = "SELECT ow_mailbox_attachment.id as attachId, hash, fileName, ow_mailbox_attachment.messageId AS messageId, ow_mailbox_message.id
+            FROM ow_mailbox_attachment
+            LEFT OUTER JOIN ow_mailbox_message on ow_mailbox_attachment.messageId = ow_mailbox_message.id
+            WHERE ow_mailbox_message.id is NULL";
+          
+          
+          return OW::getDbo()->queryForList($sql);               
+    }
+    
+    public function deleteAttachmentFiles($path)
+    {
+         try
+         {
+             OW::getStorage()->removeFile($path);
+         }
+         catch (Exception $ex)
+         {
+
+         }
+    }
 
 //    /**
 //     *

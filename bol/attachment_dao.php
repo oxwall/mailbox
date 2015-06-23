@@ -194,6 +194,18 @@ GROUP BY `m`.`conversationId`";
 
         return $this->dbo->queryForColumnList($sql);
     }
+    
+    public function getAttachmentForDelete()
+    {
+          $sql = "SELECT `attach`.* 
+                  FROM {$this->getTableName()} AS attach
+                  LEFT OUTER JOIN `". MAILBOX_BOL_MessageDao::getInstance()->getTableName(). "` AS msg ON `attach`.`messageId` = `msg`.`id`
+                  WHERE `msg`.`id` IS NULL
+                  LIMIT 100";
+          
+          
+          return $this->dbo->queryForObjectList($sql, $this->getDtoClassName());             
+    }
 
 //    /**
 //     *

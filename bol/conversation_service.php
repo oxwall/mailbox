@@ -3783,4 +3783,27 @@ final class MAILBOX_BOL_ConversationService
 
         return true;
     }
+    
+    public function deleteAttachmentFiles()  // this method has calling from cron
+    {
+        $attachDtoList = $this->attachmentDao->getAttachmentForDelete();        
+     
+        foreach ($attachDtoList as $attachDto)
+        {   /* @var $attachDto MAILBOX_BOL_Attachment */
+            $ext = UTIL_File::getExtension($attachDto->fileName);
+            $attachmentPath = $this->getAttachmentFilePath($attachDto->id, $attachDto->hash, $ext, $attachDto->fileName);
+              
+            try
+            {
+                OW::getStorage()->removeFile($attachmentPath);
+                $this->attachmentDao->deleteById($attachDto->id);
+            }
+            catch (Exception $ex)
+            {
+            }
+            
+            
+        }        
+        
+    }
 }

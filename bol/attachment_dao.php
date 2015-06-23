@@ -195,27 +195,16 @@ GROUP BY `m`.`conversationId`";
         return $this->dbo->queryForColumnList($sql);
     }
     
-    public function getAttachmentFilesForDelete()
+    public function getAttachmentForDelete()
     {
-          $sql = "SELECT ow_mailbox_attachment.id as attachId, hash, fileName, ow_mailbox_attachment.messageId AS messageId, ow_mailbox_message.id
-            FROM ow_mailbox_attachment
-            LEFT OUTER JOIN ow_mailbox_message on ow_mailbox_attachment.messageId = ow_mailbox_message.id
-            WHERE ow_mailbox_message.id is NULL";
+          $sql = "SELECT `attach`.`id` AS attachId, hash, fileName, `attach`.`messageId` AS messageId, `msg`.`id`
+                  FROM {$this->getTableName()} AS attach
+                  LEFT OUTER JOIN `". MAILBOX_BOL_MessageDao::getInstance()->getTableName(). "` AS msg ON `attach`.`messageId` = `msg`.`id`
+                  WHERE `msg`.`id` IS NULL
+                  LIMIT 100";
           
           
-          return OW::getDbo()->queryForList($sql);               
-    }
-    
-    public function deleteAttachmentFiles($path)
-    {
-         try
-         {
-             OW::getStorage()->removeFile($path);
-         }
-         catch (Exception $ex)
-         {
-
-         }
+          return $this->dbo->queryForObjectList($sql, $this->getDtoClassName());             
     }
 
 //    /**

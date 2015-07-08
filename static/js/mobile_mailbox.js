@@ -998,11 +998,14 @@ MAILBOX_Conversation = Backbone.Model.extend({
 
         if (owForms["newMailMessageForm"])
         {
-            $("#newmessage-mail-att-file-prevew img").attr("src", "");
+            $("#newmessage-mail-att-file-prevew img").hide().attr("src", "");
             $("#newmessage-mail-send-btn").removeClass("owm_preloader_circle");
 
             owForms["newMailMessageForm"].elements.newMessageText.setValue("");
             owForms["newMailMessageForm"].elements.uid.setValue(OWM.Mailbox.uniqueId("mailbox_conversation_"+data.message.convId+"_"+data.message.recipientId+"_"));
+            
+            var inputFile = $("#newmessage-mail-att-file");
+            inputFile.replaceWith(inputFile.clone(true));
         }
     },
 

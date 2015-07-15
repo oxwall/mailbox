@@ -134,6 +134,10 @@ MAILBOX_MessageView = Backbone.View.extend({
                 $('.owm_chat_bubble', this.$el).autolink();
             }
         }
+        else
+        {
+            this.text.removeClass('owm_chat_bubble');
+        }
 
         if (this.model.get('isAuthor')){
             this.$el.addClass('owm_chat_bubble_mine_wrap');

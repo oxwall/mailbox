@@ -1743,6 +1743,7 @@ final class MAILBOX_BOL_ConversationService
             $item['displayName'] = $profileDisplayname;
             $item['dateLabel'] = $convDate;
             $item['previewText'] = $convPreview;
+            $item['subject'] = $conversation['subject'];
             $item['lastMessageTimestamp'] = (int)$conversation['timeStamp'];
             $item['reply'] = $conversationHasReply;
             $item['newMessageCount'] = array_key_exists($conversationId, $unreadMessagesCountByConversationIdList) ? $unreadMessagesCountByConversationIdList[$conversationId] : 0;

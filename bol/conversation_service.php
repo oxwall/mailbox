@@ -2467,11 +2467,10 @@ final class MAILBOX_BOL_ConversationService
 //                $userData['newMessageCount'] = array('all'=>0, 'new'=>0);//TODO
 //            }
 
-            
-            $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
-            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, 10); //TODO get limits from client side
 
-        
+            $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
+            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, $userData['conversationsCount']);
+
             $userLastData->data = json_encode($userData);
 
             $this->userLastDataDao->save($userLastData);

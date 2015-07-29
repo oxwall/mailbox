@@ -614,61 +614,40 @@ class MAILBOX_CLASS_EventHandler
                     $conversationUrl = $this->service->getConversationUrl($conversation['id']);
                 }
 
-                $text = $conversation['text'];
+                $content  = $conversation['text'];
+                $imageSrc = null;
+                $imageUrl = null;
 
                 // try to render the system message
                 if ( $conversation['isSystem'] )
                 {
-                    $textParams = json_decode($text, true);
+                    $textParams = json_decode($content, true);
 
                     if ( $textParams['entityType'] == 'mailbox' && $textParams['eventName'] == 'renderOembed' )
                     {
-                        $title = !empty($textParams['params']['title'])
+                        $content = !empty($textParams['params']['title'])
                             ? $textParams['params']['title']
                             : null;
 
-                        $src   = !empty($textParams['params']['thumbnail_url'])
+                        $imageSrc = !empty($textParams['params']['thumbnail_url'])
                             ? $textParams['params']['thumbnail_url']
                             : null;
 
-                        $href  = !empty($textParams['params']['href'])
+                        $imageUrl = !empty($textParams['params']['href'])
                             ? $textParams['params']['href']
                             : null;
-
-                        if ( $title && $src && $href )
-                        {
-                            $event->add(array(
-                                'pluginKey' => 'mailbox',
-                                'entityType' => 'mailbox-conversation',
-                                'entityId' => $conversation['id'],
-                                'userId' => $recipientId,
-                                'action' => $actionName,
-                                'time' => $conversation['timeStamp'],
-
-                                'data' => array(
-                                    'avatar' => $avatar,
-                                    'string' => OW::getLanguage()->text('mailbox', 'email_notifications_comment', array(
-                                        'userName' => BOL_UserService::getInstance()->getDisplayName($senderId),
-                                        'userUrl' => BOL_UserService::getInstance()->getUserUrl($senderId),
-                                        'conversationUrl' => $conversationUrl
-                                    )),
-                                    'content' => $title,
-                                    'contentImage' => array(
-                                        'src' => $src,
-                                        'url' => $href
-                                    )
-                                )
-                            ));
-
-                            if( !empty($conversationList[$conversation['id']]) )
-                            {
-                                $conversationList[$conversation['id']]->notificationSent = 1;
-                                $this->service->saveConversation($conversationList[$conversation['id']]);
-                            }
-                        }
                     }
 
-                    continue;
+                    if ( !$imageSrc || !$imageUrl )
+                    {
+                        if ( !empty($conversationList[$conversation['id']]) )
+                        {
+                            $conversationList[$conversation['id']]->notificationSent = 1;
+                            $this->service->saveConversation($conversationList[$conversation['id']]);
+                        }
+
+                        continue;
+                    }
                 }
 
                 $event->add(array(
@@ -686,11 +665,15 @@ class MAILBOX_CLASS_EventHandler
                                 'userUrl' => BOL_UserService::getInstance()->getUserUrl($senderId),
                                 'conversationUrl' => $conversationUrl
                             )),
-                       'content' => $text
+                       'content' => $content,
+                       'contentImage' => array(
+                            'src' => $imageSrc,
+                            'url' => $imageUrl
+                        )
                     )
                 ));
 
-                if( !empty($conversationList[$conversation['id']]) )
+                if ( !empty($conversationList[$conversation['id']]) )
                 {
                     $conversationList[$conversation['id']]->notificationSent = 1;
                     $this->service->saveConversation($conversationList[$conversation['id']]);

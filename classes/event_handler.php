@@ -614,26 +614,70 @@ class MAILBOX_CLASS_EventHandler
                     $conversationUrl = $this->service->getConversationUrl($conversation['id']);
                 }
 
-                $event->add(array(
-                    'pluginKey' => 'mailbox',
-                    'entityType' => 'mailbox-conversation',
-                    'entityId' => $conversation['id'],
-                    'userId' => $recipientId,
-                    'action' => $actionName,
-                    'time' => $conversation['timeStamp'],
+                $trigger = true;
+                $content = $conversation['text'];
+                $contentImageSrc   = null;
+                $contentImageUrl   = null;
+                $contentImageTitle = null;
 
-                    'data' => array(
-                        'avatar' => $avatar,
-                        'string' => OW::getLanguage()->text('mailbox', 'email_notifications_comment', array(
+                // try to render the system message
+                if ( $conversation['isSystem'] )
+                {
+                    $textParams = json_decode($content, true);
+
+                    if ( $textParams['entityType'] == 'mailbox' && $textParams['eventName'] == 'renderOembed' )
+                    {
+                        $content = !empty($textParams['params']['message'])
+                            ? $textParams['params']['message']
+                            : null;
+
+                        $contentImageSrc = !empty($textParams['params']['thumbnail_url'])
+                            ? $textParams['params']['thumbnail_url']
+                            : null;
+
+                        $contentImageUrl = !empty($textParams['params']['href'])
+                            ? $textParams['params']['href']
+                            : null;
+
+                        $contentImageTitle = !empty($textParams['params']['title'])
+                            ? $textParams['params']['title']
+                            : null;
+                    }
+
+                    if (!$contentImageSrc)
+                    {
+                        $trigger = false;
+                    }
+                }
+
+                if ( $trigger )
+                {
+                    $event->add(array(
+                        'pluginKey' => 'mailbox',
+                        'entityType' => 'mailbox-conversation',
+                        'entityId' => $conversation['id'],
+                        'userId' => $recipientId,
+                        'action' => $actionName,
+                        'time' => $conversation['timeStamp'],
+
+                        'data' => array(
+                            'avatar' => $avatar,
+                            'string' => OW::getLanguage()->text('mailbox', 'email_notifications_comment', array(
                                 'userName' => BOL_UserService::getInstance()->getDisplayName($senderId),
                                 'userUrl' => BOL_UserService::getInstance()->getUserUrl($senderId),
                                 'conversationUrl' => $conversationUrl
                             )),
-                       'content' => $conversation['text']
-                    )
-                ));
+                            'content' => $content,
+                            'contentImage' => array(
+                                'src' => $contentImageSrc,
+                                'url' => $contentImageUrl,
+                                'title' => $contentImageTitle
+                            )
+                        )
+                    ));
+                }
 
-                if( !empty($conversationList[$conversation['id']]) )
+                if ( !empty($conversationList[$conversation['id']]) )
                 {
                     $conversationList[$conversation['id']]->notificationSent = 1;
                     $this->service->saveConversation($conversationList[$conversation['id']]);

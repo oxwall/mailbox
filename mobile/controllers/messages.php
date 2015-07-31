@@ -39,7 +39,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
     {
         if (!OW::getUser()->isAuthenticated())
         {
-            throw new Redirect404Exception();
+            throw new AuthenticateException();
         }
 
         $userId = OW::getUser()->getId();
@@ -82,7 +82,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
     {
         if (!OW::getUser()->isAuthenticated())
         {
-            throw new Redirect404Exception();
+            throw new AuthenticateException();
         }
 
         $userId = OW::getUser()->getId();

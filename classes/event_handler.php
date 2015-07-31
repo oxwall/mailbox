@@ -602,11 +602,10 @@ class MAILBOX_CLASS_EventHandler
                 $avatars = BOL_AvatarService::getInstance()->getDataForUserAvatars(array( $senderId ) );
                 $avatar = $avatars[$senderId];
 
-                $conversationUrl = OW::getRouter()->urlForRoute('mailbox_messages_default');
-
                 if ($conversation['subject'] == MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT)
                 {
                     $actionName = 'mailbox-new_chat_message';
+                    $conversationUrl = OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=>$senderId));
                 }
                 else
                 {

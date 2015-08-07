@@ -44,6 +44,7 @@ class MAILBOX_CLASS_Credits
         $mailboxEvent = new OW_Event('mailbox.admin.add_auth_labels');
         OW::getEventManager()->trigger($mailboxEvent);
         $data = $mailboxEvent->getData();
+        
         if (!empty($data))
         {
             $actionLabels = $data['actions'];

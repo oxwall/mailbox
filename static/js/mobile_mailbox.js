@@ -134,6 +134,27 @@ MAILBOX_MessageView = Backbone.View.extend({
                 $('.owm_chat_bubble', this.$el).autolink();
             }
         }
+        
+        var readMessageAuthorized = this.model.get('readMessageAuthorized');
+        var byCreditsMessage = this.model.get('byCreditsMessage');
+        var promotedMessage = this.model.get('promotedMessage');
+        var authErrorMessages = this.model.get('authErrorMessages');
+
+        if ( readMessageAuthorized == false )
+        {
+            if( byCreditsMessage )
+            {
+                $('.owm_chat_bubble', this.$el).addClass('owm_lbutton owm_bg_color_3');
+            }
+            else if ( promotedMessage )
+            {
+                $('.owm_chat_bubble', this.$el).addClass('owm_remark');
+            }
+            else if ( authErrorMessages )
+            {
+                $('.owm_chat_bubble', this.$el).addClass('owm_remark');
+            }
+        }
 
         if (this.model.get('isAuthor')){
             this.$el.addClass('owm_chat_bubble_mine_wrap');
@@ -197,6 +218,27 @@ MAILBOX_MailMessageView = Backbone.View.extend({
 
                     $('.owm_mail_msg_cont', this.$el).append( attachment );
                 }
+            }
+        }
+
+        var readMessageAuthorized = this.model.get('readMessageAuthorized');
+        var byCreditsMessage = this.model.get('byCreditsMessage');
+        var promotedMessage = this.model.get('promotedMessage');
+        var authErrorMessages = this.model.get('authErrorMessages');
+
+        if ( readMessageAuthorized == false )
+        {
+            if( byCreditsMessage )
+            {
+                $('.owm_mail_txt', this.$el).addClass('owm_lbutton owm_bg_color_3');
+            }
+            else if ( promotedMessage )
+            {
+                $('.owm_mail_txt', this.$el).addClass('owm_remark');
+            }
+            else if ( authErrorMessages )
+            {
+                $('.owm_mail_txt', this.$el).addClass('owm_remark');
             }
         }
 
@@ -991,16 +1033,17 @@ MAILBOX_Conversation = Backbone.Model.extend({
             this.messageList.add(data.message);
             $('html, body').animate({scrollTop:$(document).height()}, 'slow');
         }
-
+        
+        $("#newmessage-mail-att-file-prevew img").attr("src", "");
+        $("#newmessage-mail-send-btn").removeClass("owm_preloader_circle");
+            
         if (data.error){
             OWM.error(data.error);
+            return;
         }
 
         if (owForms["newMailMessageForm"])
         {
-            $("#newmessage-mail-att-file-prevew img").attr("src", "");
-            $("#newmessage-mail-send-btn").removeClass("owm_preloader_circle");
-
             owForms["newMailMessageForm"].elements.newMessageText.setValue("");
             owForms["newMailMessageForm"].elements.uid.setValue(OWM.Mailbox.uniqueId("mailbox_conversation_"+data.message.convId+"_"+data.message.recipientId+"_"));
         }
@@ -1286,9 +1329,10 @@ MAILBOX_MailConversationView = MAILBOX_ConversationView.extend({
         $('#mailboxLoadHistoryPreloader').hide();
 
         this.changeStatus();
-
+        
         var that = this;
         _.each(this.model.messageList.models, function (message) {
+            console.log(message);
             that.renderMessage(message);
         }, this);
 

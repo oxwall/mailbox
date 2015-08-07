@@ -520,6 +520,9 @@ final class MAILBOX_BOL_ConversationService
         $item['isAuthor'] = (bool)((int)$message->senderId == OW::getUser()->getId());
         $item['recipientRead'] = (int)$message->recipientRead;
         $item['isSystem'] = (int)$message->isSystem;
+        $item['byCreditsMessage'] = false;
+        $item['promotedMessage'] = false;
+        $item['authErrorMessages'] = false;
         $item['attachments'] = array();
 
         $conversation = $this->getConversation($message->conversationId);
@@ -566,7 +569,9 @@ final class MAILBOX_BOL_ConversationService
                     {
                         $readMessageAuthorized = false;
                         $item['isSystem'] = 1;
+                        $item['byCreditsMessage'] = true;
                         $item['previewText'] = OW::getLanguage()->text('mailbox', 'click_to_read_messages');
+                        
                         $text = '<p><span class="ow_small"><a href="javascript://" id="notAuthorizedMessage_'.$message->id.'" class="callReadMessage">'.OW::getLanguage()->text('mailbox', 'read_the_message').'</a></span></p>';
                     }
                 }
@@ -583,16 +588,18 @@ final class MAILBOX_BOL_ConversationService
                 $text = "<p>".$status['msg']."</p>";
                 $item['previewText'] = $status['msg'];
                 $item['isSystem'] = 1;
+                $item['promotedMessage'] = true;
             }
             else
             {
                 $readMessageAuthorized = false;
                 $text = OW::getLanguage()->text('mailbox', $actionName.'_permission_denied');
+                $item['authErrorMessages'] = true;
             }
         }
-
+        
         $item['readMessageAuthorized'] = $readMessageAuthorized;
-
+        
         if ($readMessageAuthorized)
         {
             if ($message->isSystem)

@@ -45,21 +45,21 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
         $userId = OW::getUser()->getId();
         $opponentId = (int)$params['userId'];
 
-//        $actionName = 'use_chat';
-//
-//        $isAuthorized = OW::getUser()->isAuthorized('mailbox', $actionName);
-//        if ( !$isAuthorized )
-//        {
-//            $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
-//            if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
-//            {
-//                throw new AuthorizationException($status['msg']);
-//            }
-//            else
-//            {
-//                throw new AuthorizationException();
-//            }
-//        }
+        /* $actionName = 'use_chat';
+
+        $isAuthorized = OW::getUser()->isAuthorized('mailbox', $actionName);
+        if ( !$isAuthorized )
+        {
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
+            if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
+            {
+                throw new AuthorizationException($status['msg']);
+            }
+            else
+            {
+                throw new AuthorizationException();
+            }
+        } */
 
         $conversationService = MAILBOX_BOL_ConversationService::getInstance();
 
@@ -270,9 +270,9 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
                 "error" => "You need to sign in to send message."
             ));
         }
-
+        
         $conversationService = MAILBOX_BOL_ConversationService::getInstance();
-
+        
 //        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval(OW::getUser()->getId());
 //        if (!$userSendMessageIntervalOk)
 //        {
@@ -281,24 +281,31 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
 //                array('error'=>OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)))
 //            );
 //        }
-
+        
         if ( empty($_POST['conversationId']) || empty($_POST['opponentId']) || empty($_POST['uid']) || empty($_POST['newMessageText']) )
         {
             $this->echoOut(array(
                 "error" => OW::getLanguage()->text('base', 'form_validate_common_error_message')
             ));
         }
-
-
+        
         $conversationId = $_POST['conversationId'];
         $userId = OW::getUser()->getId();
-
+        
         $actionName = 'reply_to_message';
         $isAuthorized = OW::getUser()->isAuthorized('mailbox', $actionName);
+        
         if ( !$isAuthorized )
         {
             $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
-            if ( $status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE )
+            
+            if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
+            {
+                $this->echoOut(array(
+                    "error" => OW::getLanguage()->text('mailbox', $actionName.'_promoted')
+                ));
+            }
+            else if ( $status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE )
             {
                 $this->echoOut(array(
                     "error" => OW::getLanguage()->text('mailbox', $actionName.'_permission_denied')
@@ -335,6 +342,8 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
                 {
                     $conversationService->addMessageAttachments($message->id, $files);
                 }
+                
+                BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
             }
 
             $this->echoOut( array('message'=>$conversationService->getMessageData($message)) );

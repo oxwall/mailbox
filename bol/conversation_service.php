@@ -1750,6 +1750,7 @@ final class MAILBOX_BOL_ConversationService
             $item['displayName'] = $profileDisplayname;
             $item['dateLabel'] = $convDate;
             $item['previewText'] = $convPreview;
+            $item['subject'] = $conversation['subject'];
             $item['lastMessageTimestamp'] = (int)$conversation['timeStamp'];
             $item['reply'] = $conversationHasReply;
             $item['newMessageCount'] = array_key_exists($conversationId, $unreadMessagesCountByConversationIdList) ? $unreadMessagesCountByConversationIdList[$conversationId] : 0;
@@ -2473,11 +2474,10 @@ final class MAILBOX_BOL_ConversationService
 //                $userData['newMessageCount'] = array('all'=>0, 'new'=>0);//TODO
 //            }
 
-            
-            $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
-            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, 10); //TODO get limits from client side
 
-        
+            $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
+            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, $userData['conversationsCount']);
+
             $userLastData->data = json_encode($userData);
 
             $this->userLastDataDao->save($userLastData);
@@ -3789,5 +3789,28 @@ final class MAILBOX_BOL_ConversationService
         }
 
         return true;
+    }
+    
+    public function deleteAttachmentFiles()  // this method has calling from cron
+    {
+        $attachDtoList = $this->attachmentDao->getAttachmentForDelete();        
+     
+        foreach ($attachDtoList as $attachDto)
+        {   /* @var $attachDto MAILBOX_BOL_Attachment */
+            $ext = UTIL_File::getExtension($attachDto->fileName);
+            $attachmentPath = $this->getAttachmentFilePath($attachDto->id, $attachDto->hash, $ext, $attachDto->fileName);
+              
+            try
+            {
+                OW::getStorage()->removeFile($attachmentPath);
+                $this->attachmentDao->deleteById($attachDto->id);
+            }
+            catch (Exception $ex)
+            {
+            }
+            
+            
+        }        
+        
     }
 }

@@ -17,19 +17,26 @@
     <div id="mailboxConversationFooter" style="position: absolute; width: 100%; bottom: 0px;">
         <div class="owm_input_wrap" id="newMessageForm">
             {form name="newMessageForm" target="conversation-newmessage-submit-frame"}
-            <div class="owm_chat_add_cont owm_float_right">
-                <a href="javascript://" class="owm_chat_add_icon"><input accept="image/*" type="file" id="newmessage-att-file" name="attachment"></a>
-                {*<span class="owm_chat_add_name" id="newsfeed-att-file-prevew"><img style="height: 30px; display: none;" /><span></span></span>*}
-            </div>
-            <input type="submit" style="display: none" id="newMessageAttBtn" name="newMessageAttBtn" />
+                {if empty($sendAuthMessage) }
+                    <div class="owm_chat_add_cont owm_float_right">
+                        <a href="javascript://" class="owm_chat_add_icon"><input accept="image/*" type="file" id="newmessage-att-file" name="attachment"></a>
+                    </div>
+                    <input type="submit" style="display: none" id="newMessageAttBtn" name="newMessageAttBtn" />
+                {/if}
             {/form}
             <div class="owm_fake_input owm_chat_input_wrap"><input type="text" id="newMessageText" name="newMessageText" value="{text key='mailbox+text_message_invitation'}" class="invitation"/></div>
+            
+            {if !empty($sendAuthMessage)}
+                <div class="owm_anno owm_info">{$sendAuthMessage}</div>
+            {/if}
         </div>
-        <div class="owm_chat_submit owm_bg_color_3 comment_submit" id="newMessageSubmitForm">
-            <div class="owm_chat_btns owm_padding clearfix">
-                <div class="owm_float_right owm_chat_btn" id="newmessage-mail-send-btn">{decorator name='button' type='submit' langLabel='mailbox+add_button' id='newMessageSendBtn' buttonName='newMessageSendBtn'}</div>
+        {if empty($sendAuthMessage) }
+            <div class="owm_chat_submit owm_bg_color_3 comment_submit" id="newMessageSubmitForm">
+                <div class="owm_chat_btns owm_padding clearfix">
+                    <div class="owm_float_right owm_chat_btn" id="newmessage-mail-send-btn">{decorator name='button' type='submit' langLabel='mailbox+add_button' id='newMessageSendBtn' buttonName='newMessageSendBtn'}</div>
+                </div>
             </div>
-        </div>
+        {/if}
     </div>
 </div>
 

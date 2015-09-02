@@ -1451,6 +1451,7 @@ MAILBOX_Mobile = Backbone.Model.extend({
             params.convListLength = self.convList.length;
             params.ajaxActionData = self.ajaxActionData;
             params.conversationsCount = self.ajaxActionData;
+            params.getAllConversations = 1;
             self.ajaxActionData = [];
 
             if (params.readMessageList.length != 0)

@@ -2476,7 +2476,11 @@ final class MAILBOX_BOL_ConversationService
 
 
             $userData['conversationsCount'] = $this->countConversationListByUserId($userId);
-            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, $userData['conversationsCount']);
+            $limit = !empty($params['getAllConversations'])
+                ? $userData['conversationsCount']
+                : 10;
+
+            $userData['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, $limit);
 
             $userLastData->data = json_encode($userData);
 

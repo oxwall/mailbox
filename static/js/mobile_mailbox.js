@@ -70,7 +70,7 @@ MAILBOX_Message = Backbone.Model.extend({
 
     idAttribute: 'id',
 
-    readMessage: function(actionParams){
+    readMessage: function(actionParams, callback){
 
         var that = this;
         $.ajax({
@@ -92,6 +92,10 @@ MAILBOX_Message = Backbone.Model.extend({
                     }
 
                     that.set(data);
+
+                    if (typeof callback != 'undefined') {
+                        callback.call(data);
+                    }
                 }
             },
             'dataType': 'json'
@@ -147,7 +151,9 @@ MAILBOX_MessageView = Backbone.View.extend({
         if (!this.model.get('readMessageAuthorized')){
             var that = this;
             this.$el.on('click', '.callReadMessage', function(e){
-                that.model.readMessage($(this).attr('id'));
+                that.model.readMessage($(this).attr('id'), function(){
+                    location.reload();
+                });
             });
         }
 
@@ -211,7 +217,9 @@ MAILBOX_MailMessageView = Backbone.View.extend({
         if (!this.model.get('readMessageAuthorized')){
             var that = this;
             this.$el.on('click', '.callReadMessage', function(e){
-                that.model.readMessage($(this).attr('id'));
+                that.model.readMessage($(this).attr('id'), function(){
+                    location.reload();
+                });
             });
         }
 

@@ -2091,6 +2091,7 @@ OWMailbox.Dialog.Controller.prototype = {
         var self = this;
 
         this.control = $("#dialogPrototypeBlock").clone();
+
         this.control.attr('id', 'main_tab_contact_' + this.model.opponentId);
         this.control.data('convId', this.model.convId);
         this.control.addClass('mailboxDialogBlock');
@@ -2243,6 +2244,8 @@ OWMailbox.Dialog.Controller.prototype = {
         this.chatSelectorContactListContainer.append(this.smallItemControl);
 
         this.attachmentsBtn = $('#dialogAttachmentsBtn', this.control);
+
+        OW.trigger('mailbox.after_dialog_render', [{'control' : this.control, 'opponentId' : this.model.opponentId}]);
 
     },
 

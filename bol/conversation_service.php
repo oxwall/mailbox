@@ -2809,7 +2809,9 @@ final class MAILBOX_BOL_ConversationService
 
             if (!empty($question['googlemap_location']))
             {
-                $userFields['googlemap_location'] = $question['googlemap_location']['address'];
+                $userFields['googlemap_location'] = !empty($question['googlemap_location']['address'])
+                    ? $question['googlemap_location']['address']
+                    : '';
                 $fields[$userId] .= "<br/>".$userFields['googlemap_location'];
             }
         }

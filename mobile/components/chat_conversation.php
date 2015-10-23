@@ -38,7 +38,7 @@ class MAILBOX_MCMP_ChatConversation extends OW_MobileComponent
             
             if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
             {
-                $this->assign('sendAuthMessage', OW::getLanguage()->text('mailbox', $actionName.'_promoted'));
+                $this->assign('sendAuthMessage', $status['msg']);
             }
             else if ( $status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE )
             {

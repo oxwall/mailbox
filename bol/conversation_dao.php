@@ -340,7 +340,8 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         return $this->dbo->queryForColumnList($sql, array('user' => $userId));
     }
 
-    public function findConversationItemListByUserId($userId, $activeModes, $from = 0, $count = 50)
+
+    public function findConversationItemListByUserId($userId, $activeModes, $from = 0, $count = 50, $convId = null)
     {
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
@@ -359,6 +360,11 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
             {
                 $condition .= "AND `conv`.`subject` <> '".MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT."' ";
             }
+        }
+
+        if ( $convId )
+        {
+            $condition .= "AND `conv`.`id` = '".(int) $convId."' ";
         }
 //
 //        $sql = " SELECT `conv`.`id`,

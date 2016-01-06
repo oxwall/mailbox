@@ -3148,11 +3148,11 @@ final class MAILBOX_BOL_ConversationService
         return (int)$this->conversationDao->countConversationListByUserId($userId, $activeModes);
     }
 
-    public function getConversationListByUserId($userId, $from = 0, $count = 50){
+    public function getConversationListByUserId($userId, $from = 0, $count = 50, $convId = null){
         $data = array();
 
         $activeModes = $this->getActiveModeList();
-        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($userId, $activeModes, $from, $count);
+        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($userId, $activeModes, $from, $count, $convId);
 
         foreach($conversationItemList as $i => $conversation)
         {

@@ -1521,6 +1521,14 @@ class MAILBOX_CLASS_EventHandler
             throw new InvalidArgumentException(OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)));
         }
 
+        // check recipient's blocked status
+        $isBlocked  = BOL_UserService::getInstance()->isBlocked($userId, $opponentId);
+
+        if ( $isBlocked )
+        {
+            throw new InvalidArgumentException(OW::getLanguage()->text('base', 'user_block_message'));
+        }
+
         $conversation = $this->service->createConversation($userId, $opponentId, $subject, $text);
 
         $event->setData($conversation);

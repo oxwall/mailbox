@@ -89,10 +89,15 @@ class MAILBOX_MCLASS_ComposeMessageForm extends Form
             return array('result'=>false, 'error' => $data['error']);
         }
 
+        if ( !trim(strip_tags($values['subject'])) )
+        {
+            return array('result'=>false, 'error' => $language->text('mailbox', 'subject_is_required'));
+        }
+
         $values['subject'] = $data['subject'];
         $values['message'] = $data['message'];
 
-        $conversation = $conversationService->createConversation($userId, $values['opponentId'], htmlspecialchars($values['subject']), $values['message']);
+        $conversation = $conversationService->createConversation($userId, $values['opponentId'], $values['subject'], $values['message']);
         $message = $conversationService->getLastMessage($conversation->id);
 
         if ( !empty($_FILES['attachment']["tmp_name"]) )

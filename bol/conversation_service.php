@@ -415,7 +415,7 @@ final class MAILBOX_BOL_ConversationService
 
         $initiatorId = (int) $initiatorId;
         $interlocutorId = (int) $interlocutorId;
-        $subject = trim($subject);
+        $subject = trim(strip_tags($subject));
 
         if ( empty($subject) )
         {
@@ -1540,7 +1540,7 @@ final class MAILBOX_BOL_ConversationService
 
                 $eventData = $event->getData();
 
-                $convPreview = $eventData['short'];
+                $convPreview = strip_tags($eventData['short']);
             }
         }
 

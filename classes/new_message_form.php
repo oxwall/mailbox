@@ -271,10 +271,15 @@ class MAILBOX_CLASS_NewMessageForm extends Form
             return array('result'=> 'permission_denied', 'message' => $data['error']);
         }
 
+        if ( !trim(strip_tags($data['subject'])) )
+        {
+            return array('result'=>false, 'error' => OW::getLanguage()->text('mailbox', 'subject_is_required'));
+        }
+
         $subject = $data['subject'];
         $message = $data['message'];
 
-        $conversation = $conversationService->createConversation($userId, $opponentId, htmlspecialchars($subject), $message);
+        $conversation = $conversationService->createConversation($userId, $opponentId, $subject, $message);
         $messageDto = $conversationService->getLastMessage($conversation->id);
 
         if (!empty($files))

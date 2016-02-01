@@ -6,7 +6,7 @@ String.prototype.nl2br = function(is_xhtml) {
 String.prototype.width = function(font) {
 
     var f = font || '12px arial',
-        o = $('<div>' + this + '</div>')
+        o = $('<div>').text(this)
             .css({'position': 'absolute', 'float': 'left', 'visibility': 'hidden', 'word-wrap': 'break-word', 'word-spacing': 'normal', 'white-space': 'nowrap', 'font': f})
             .appendTo($('body')),
         w = o.width();

@@ -2510,13 +2510,14 @@ OWMailbox.Dialog.Controller.prototype = {
                 'date': OWMailbox.todayDate,
                 'dateLabel': OWMailbox.todayDateLabel,
                 'id': tmpMessageUid,
-                'text': text,
+                'text': text.replace(/<\/?[^>]+>/gi, ''),
                 'attachments': [],
                 'senderId': OWMailbox.userDetails.userId,
                 'recipientId': self.model.opponentId,
                 'timeStamp': timeStamp,
                 'timeLabel': timeLabel
             };
+
             OW.trigger('mailbox.send_message', {'sentFrom': 'dialog', 'opponentId': self.model.opponentId, 'convId': self.model.convId, 'tmpMessage': tmpMessage});
 
             var data = {
@@ -2589,13 +2590,14 @@ OWMailbox.Dialog.Controller.prototype = {
 
     postMessage: function(tmpMessageUid, data){
         var self = this;
-
         var ajaxData = {};
+
         ajaxData['actionData'] = {
             'uniqueId': OWMailbox.uniqueId('postMessage'),
             'name': 'postMessage',
             'data': data
         };
+
         ajaxData['actionCallbacks'] = {
             'tmpMessageUid' : tmpMessageUid,
             'success': function(data){

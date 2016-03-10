@@ -854,9 +854,11 @@ final class MAILBOX_BOL_ConversationService
      * @param MAILBOX_BOL_Conversation $conversation
      * @param int $senderId
      * @param string $text
+     * @param boolean $isSystem
+     *
      * @throws InvalidArgumentException
      */
-    public function createMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text )
+    public function createMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false )
     {
         if ( empty($senderId) )
         {
@@ -881,12 +883,13 @@ final class MAILBOX_BOL_ConversationService
         $senderId = (int) $senderId;
         $recipientId = ($senderId == $conversation->initiatorId) ? $conversation->interlocutorId : $conversation->initiatorId;
 
-        $message = $this->addMessage($conversation, $senderId, $text);
+        $message = $this->addMessage($conversation, $senderId, $text, $isSystem);
 
         $event = new OW_Event('mailbox.send_message', array(
             'senderId' => $senderId,
             'recipientId' => $recipientId,
             'conversationId' => $conversation->id,
+            'isSystem' => $isSystem,
             'message' => $text
         ), $message);
         OW::getEventManager()->trigger($event);
@@ -1019,9 +1022,11 @@ final class MAILBOX_BOL_ConversationService
      * @param MAILBOX_BOL_Conversation $conversation
      * @param int $senderId
      * @param string $text
+     * @param boolean $isSystem
+     *
      * @throws InvalidArgumentException
      */
-    public function addMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text )
+    public function addMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false )
     {
         if ( empty($senderId) )
         {
@@ -1060,6 +1065,7 @@ final class MAILBOX_BOL_ConversationService
         $message->recipientId = $recipientId;
         $message->text = $text;
         $message->timeStamp = time();
+        $message->isSystem = $isSystem;
 
         $this->messageDao->save($message);
 

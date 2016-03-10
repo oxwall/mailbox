@@ -1230,12 +1230,8 @@ class MAILBOX_CLASS_EventHandler
 
             $conversation = $this->service->getConversation($conversationId);
 
-            $message = $this->service->createMessage($conversation, $params['userId'], $params['text']);
-
-            if ( isset($params['isSystem']) && $params['isSystem'] )
-            {
-                $this->service->markMessageAsSystem($message->id);
-            }
+            $isSystem = isset($params['isSystem']) && $params['isSystem'];
+            $message = $this->service->createMessage($conversation, $params['userId'], $params['text'], $isSystem);
 
             $this->service->markUnread(array($conversationId), $params['opponentId']);
 

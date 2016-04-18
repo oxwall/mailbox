@@ -767,7 +767,7 @@ MAILBOX_Search = Backbone.View.extend({
             }
             else
             {
-                var expr = new RegExp('(^'+name+'.*)|(\\s'+name+'.*)', 'i');
+                var expr = new RegExp(OW.escapeRegExp(name) , 'i');
 
                 for (var i=0; i<this.items.length; i++){
 

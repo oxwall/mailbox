@@ -1075,8 +1075,7 @@ var MailboxUserField = function( id, name, invitationString ){
 
             self.autocompleteControl.show();
 
-            //TODO refactor from regexp to something more efficient
-            var expr = new RegExp('(^'+name+'.*)|(\\s'+name+'.*)', 'i');
+            var expr = new RegExp(OW.escapeRegExp(name) , 'i');
 
             $.each(contactList, function(id, contact){
                 if (!expr.test(contact.get('displayName'))){

@@ -1119,7 +1119,7 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
             OW.updateScroll(self.contactListWrapper);
         }
         else{
-            var expr = new RegExp('(^'+name+'.*)|(\\s'+name+'.*)', 'i');
+            var expr = new RegExp(OW.escapeRegExp(name) , 'i');
 
             for (var i=0; i<this.model.contacts.length; i++){
                 var contact = this.model.contacts.models[i];

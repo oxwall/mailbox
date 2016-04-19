@@ -2344,8 +2344,10 @@ final class MAILBOX_BOL_ConversationService
             $data = $this->getUserIdList($userId);
         }
         $list = $this->getUserInfoForUserIdList($data['userIdList'], $data['userWithCorrespondenceIdList'], $data['friendIdList']);
+
         $onlineCount = 0;
         $result = array();
+
         foreach($list as $userData)
         {
             $result[] = $userData;
@@ -2354,6 +2356,7 @@ final class MAILBOX_BOL_ConversationService
                 $onlineCount++;
             }
         }
+
         return array('onlineCount'=>$onlineCount, 'list'=>$result);
     }
 
@@ -2399,7 +2402,7 @@ final class MAILBOX_BOL_ConversationService
     public function getLastData($params)
     {
         return $this->getLastDataAlt($params);
-
+/*
         $result = array();
         $userId = OW::getUser()->getId();
         $userService = BOL_UserService::getInstance();
@@ -2427,7 +2430,7 @@ final class MAILBOX_BOL_ConversationService
             $result['convList'] = $this->getConversationListByUserId(OW::getUser()->getId(), 0, 10);
         }
 
-        return $result;
+        return $result;*/
     }
 
     public function getLastDataAlt($params)
@@ -2494,6 +2497,7 @@ final class MAILBOX_BOL_ConversationService
         }
 
         $messageList = $this->findUnreadMessages($userId, $params['unreadMessageList'], $params['lastMessageTimestamp']);
+
         if (!empty($messageList))
         {
             $conversations = array();
@@ -2520,7 +2524,7 @@ final class MAILBOX_BOL_ConversationService
 
         $data = json_decode($userLastData->data, true);
 
-        
+
         if ($params['userOnlineCount'] === 0 || $data['userOnlineCount'] != $params['userOnlineCount'])
         {
             $result['userOnlineCount'] = $data['userOnlineCount'];
@@ -2547,6 +2551,32 @@ final class MAILBOX_BOL_ConversationService
         }
 
 //        $result['newMessageCount'] = $data['newMessageCount'];
+
+        $blockedUsers = $this->findBlockedByMeUserIdList();
+
+        //--  remove content from blocked users --//
+        if ( !empty($result['userList']) )
+        {
+            foreach ($result['userList'] as $index => $user)
+            {
+                if ( in_array($user['opponentId'], $blockedUsers) )
+                {
+                    unset($result['userList'][$index]);
+                }
+            }
+        }
+
+        if ( !empty($result['convList']) )
+        {
+            foreach ($result['convList'] as $index => $user)
+            {
+                if ( in_array($user['opponentId'], $blockedUsers) )
+                {
+                    unset($result['convList'][$index]);
+                }
+            }
+        }
+        // --
 
         return $result;
     }
@@ -2736,6 +2766,13 @@ final class MAILBOX_BOL_ConversationService
     }
 
 
+    private function findBlockedByMeUserIdList()
+    {
+        $sql = "SELECT `blockedUserId` FROM `".BOL_UserBlockDao::getInstance()->getTableName()."` WHERE `userId` = :userId";
+
+        return OW::getDbo()->queryForColumnList($sql, array('userId'=>OW::getUser()->getId()));
+    }
+
     public function getFields( $userIdList )
     {
         $fields = array();
@@ -2835,6 +2872,7 @@ final class MAILBOX_BOL_ConversationService
 
         $userInfoList = array();
         $userId = OW::getUser()->getId();
+
 
         $blockedByUserIdList = $this->isBlockedByUserIdList($userId, $userIdList);
         $onlineStatusByUserIdList = $this->getUserStatusForUserIdList($userIdList);

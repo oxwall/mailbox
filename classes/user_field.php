@@ -61,13 +61,7 @@ class MAILBOX_CLASS_UserField extends InvitationFormElement
     {
         $jsString = "var formElement = new MailboxUserField(" . json_encode($this->getId()) . ", " . json_encode($this->getName()) . ", " . json_encode( $this->invitation ) . ");";
 
-        /** @var $value Validator  */
-        foreach ( $this->validators as $value )
-        {
-            $jsString .= "formElement.addValidator(" . $value->getJsValidator() . ");";
-        }
-
-        return $jsString;
+        return $jsString.$this->generateValidatorAndFilterJsCode("formElement");
     }
 }
 

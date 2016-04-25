@@ -2550,32 +2550,20 @@ final class MAILBOX_BOL_ConversationService
             $result['messageList'] = $data['messageList'];
         }
 
-//        $result['newMessageCount'] = $data['newMessageCount'];
-
+        //--  remove content from blocked users --//
         $blockedUsers = $this->findBlockedByMeUserIdList();
 
-        //--  remove content from blocked users --//
         if ( !empty($result['userList']) )
         {
-            foreach ($result['userList'] as $index => $user)
+            foreach ( $result['userList'] as $index => &$user )
             {
                 if ( in_array($user['opponentId'], $blockedUsers) )
                 {
-                    unset($result['userList'][$index]);
+                    $user['canInvite'] = false;
                 }
             }
         }
 
-        if ( !empty($result['convList']) )
-        {
-            foreach ($result['convList'] as $index => $user)
-            {
-                if ( in_array($user['opponentId'], $blockedUsers) )
-                {
-                    unset($result['convList'][$index]);
-                }
-            }
-        }
         // --
 
         return $result;

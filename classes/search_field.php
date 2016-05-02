@@ -34,20 +34,9 @@
  * @package ow_plugin.mailbox.classes
  * @since 1.6.1
  * */
-class MAILBOX_CLASS_SearchField extends InvitationFormElement
+class MAILBOX_CLASS_SearchField extends TextField
 {
     public $showCloseButton = true;
-    /**
-     * Constructor.
-     *
-     * @param string $name
-     */
-    public function __construct( $name )
-    {
-        parent::__construct($name);
-
-        $this->addAttribute('type', 'text');
-    }
 
     /**
      * @see FormElement::renderInput()
@@ -57,19 +46,7 @@ class MAILBOX_CLASS_SearchField extends InvitationFormElement
      */
     public function renderInput( $params = null )
     {
-        parent::renderInput($params);
-
-        if ( $this->getValue() !== null )
-        {
-            $this->addAttribute('value', $this->value);
-        }
-        else if ( $this->getHasInvitation() )
-        {
-            $this->addAttribute('value', $this->invitation);
-            $this->addAttribute('class', 'invitation');
-        }
-
-        $tag = UTIL_HtmlTag::generateTag('input', $this->attributes);
+        $tag = parent::renderInput($params);
 
         if ($this->showCloseButton)
         {
@@ -78,5 +55,4 @@ class MAILBOX_CLASS_SearchField extends InvitationFormElement
 
         return $tag;
     }
-
 }

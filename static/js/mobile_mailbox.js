@@ -724,9 +724,6 @@ MAILBOX_Search = Backbone.View.extend({
         var self = this;
 
         var formElement = new OwFormElement('mailboxSidebarSearchTextField', 'mailbox_search_users_btn');
-
-        addInvitationBeh(formElement, OW.getLanguageText('mailbox', 'label_invitation_conversation_search'));
-
         var parentResetValue = formElement.resetValue;
 
         formElement.resetValue = function(){
@@ -767,7 +764,7 @@ MAILBOX_Search = Backbone.View.extend({
             }
             else
             {
-                var expr = new RegExp(OW.escapeRegExp(name) , 'i');
+                var expr = new RegExp(OWM.escapeRegExp(name) , 'i');
 
                 for (var i=0; i<this.items.length; i++){
 

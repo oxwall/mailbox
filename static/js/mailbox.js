@@ -868,26 +868,10 @@ OW_MailboxConsole = function( itemKey, params ){
 
 OW.MailboxConsole = null;
 
-var SearchField = function( id, name, invitationString ){
+var SearchField = function( id, name ){
 
     var self = this;
     var formElement = new OwFormElement(id, name);
-    if( invitationString ){
-        addInvitationBeh(formElement, invitationString);
-
-        $(formElement.input).bind('blur.invitation', {formElement:formElement},
-        function(e){
-             el = $(this);
-             if( el.val() == '' || el.val() == e.data.formElement.invitationString){
-                 el.addClass('invitation');
-                 el.val(e.data.formElement.invitationString);
-             }
-             else{
-                el.unbind('focus.invitation').unbind('blur.invitation');
-             }
-         });
-    }
-
     formElement.handler = null;
 
     formElement.setHandler = function(obj){
@@ -924,7 +908,7 @@ var SearchField = function( id, name, invitationString ){
 
     return formElement;
 }
-var MailboxUserField = function( id, name, invitationString ){
+var MailboxUserField = function( id, name ){
     var self = this;
 
     var formElement = new OwFormElement(id, name);

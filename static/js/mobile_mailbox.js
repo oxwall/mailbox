@@ -881,7 +881,6 @@ MAILBOX_NewMessageFormView = Backbone.View.extend({
     initialize: function(){
         var that = this;
         var formElement = new OwFormElement('newMessageText', 'newMessageText');
-        addInvitationBeh(formElement, OW.getLanguageText('mailbox', 'text_message_invitation'));
 
         // init pseudo auto click
         var $textA = $(formElement.input), $submitCont = $('#newMessageSubmitForm');
@@ -899,7 +898,7 @@ MAILBOX_NewMessageFormView = Backbone.View.extend({
                 $('#mailboxMailConversation').addClass('owm_mail_input_opened');
             }
 
-            $(this).removeClass('invitation').val('');
+            $(this).val('');
 
             $('html, body').animate({scrollTop:$(document).height()}, 'slow');
         });

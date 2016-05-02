@@ -1072,12 +1072,7 @@ MAILBOX_ConversationView = function () {
                     }
                     else
                     {
-                        if (data.mode == 'chat'){
-                            self.textareaControl.val(OW.getLanguageText('mailbox', 'text_message_invitation'));
-                        }
-                        else{
-                            self.textareaControl.val('');
-                        }
+                        self.textareaControl.val('');
                     }
 
                     if (data.mode == 'chat' && self.textareaControl.length > 0){
@@ -1333,37 +1328,6 @@ MAILBOX_ConversationView = function () {
             self.conversationChatFormBlock.removeClass('ow_hidden');
             self.messageFormBlock.addClass('ow_hidden');
             self.textareaControl = $('#dialogTextarea', self.control);
-
-            $(self.textareaControl).bind('focus.invitation', {},
-                function(e){
-                    el = $(this);
-                    el.removeClass('invitation');
-                    if( el.val() == '' || el.val() == OW.getLanguageText('mailbox', 'text_message_invitation')){
-                        el.val('');
-                        //hotfix for media panel
-                        if( 'htmlarea' in el.get(0) ){
-                            el.unbind('focus.invitation').unbind('blur.invitation');
-                            el.get(0).htmlarea();
-                            el.get(0).htmlareaFocus();
-                        }
-                    }
-                    else{
-                        el.unbind('focus.invitation').unbind('blur.invitation');
-                    }
-                }
-            ).bind('blur.invitation', {},
-                function(e){
-                    el = $(this);
-                    if( el.val() == '' || el.val() == OW.getLanguageText('mailbox', 'text_message_invitation')){
-                        el.addClass('invitation');
-                        el.val(OW.getLanguageText('mailbox', 'text_message_invitation'));
-                    }
-                    else{
-                        el.unbind('focus.invitation').unbind('blur.invitation');
-                    }
-                }
-            );
-//            self.textareaControl.css('height', self.textareaHeight );
 
             if (!self.hasLinkObserver){
                 OWLinkObserver.observeInput('dialogTextarea', function(link){

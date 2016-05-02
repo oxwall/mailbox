@@ -1480,36 +1480,6 @@ OWMailbox.Dialog.Controller = function(model){
         }
     });
 
-    $(this.textareaControl).bind('focus.invitation', {},
-        function(e){
-            el = $(this);
-            el.removeClass('invitation');
-            if( el.val() == '' || el.val() == OW.getLanguageText('mailbox', 'text_message_invitation')){
-                el.val('');
-                //hotfix for media panel
-                if( 'htmlarea' in el.get(0) ){
-                    el.unbind('focus.invitation').unbind('blur.invitation');
-                    el.get(0).htmlarea();
-                    el.get(0).htmlareaFocus();
-                }
-            }
-            else{
-                el.unbind('focus.invitation').unbind('blur.invitation');
-            }
-        }
-    ).bind('blur.invitation', {},
-        function(e){
-            el = $(this);
-            if( el.val() == '' || el.val() == OW.getLanguageText('mailbox', 'text_message_invitation')){
-                el.addClass('invitation');
-                el.val(OW.getLanguageText('mailbox', 'text_message_invitation'));
-            }
-            else{
-                el.unbind('focus.invitation').unbind('blur.invitation');
-            }
-        }
-    );
-
     this.textareaControl.bind('paste', function(e){
         var element = this;
         setTimeout(function(){
@@ -1938,10 +1908,6 @@ OWMailbox.Dialog.Controller = function(model){
             self.textareaControl.css('height', self.textareaHeight + offset);
 
             self.textareaControl.val(message);
-        }
-        else
-        {
-            self.textareaControl.val( OW.getLanguageText('mailbox', 'text_message_invitation') );
         }
 
         self.scrollDialog();

@@ -153,11 +153,11 @@ class ConfigSaveForm extends Form
             $this->addElement($sendMessageInterval);
         }
 
-        $showAllMembers = new CheckboxField('show_all_members');
-        $showAllMembers->setLabel($language->text('mailbox', 'settings_label_show_all_members'));
-        $showAllMembers->setDescription($language->text('mailbox', 'settings_desc_show_all_members'));
-        $showAllMembers->setValue( OW::getConfig()->getValue('mailbox', 'show_all_members') );
-        $this->addElement($showAllMembers);
+//        $showAllMembers = new CheckboxField('show_all_members');
+//        $showAllMembers->setLabel($language->text('mailbox', 'settings_label_show_all_members'));
+//        $showAllMembers->setDescription($language->text('mailbox', 'settings_desc_show_all_members'));
+//        $showAllMembers->setValue( OW::getConfig()->getValue('mailbox', 'show_all_members') );
+//        $this->addElement($showAllMembers);
 
         // submit
         $submit = new Submit('save');

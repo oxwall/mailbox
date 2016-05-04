@@ -24,7 +24,9 @@
                     <input type="submit" style="display: none" id="newMessageAttBtn" name="newMessageAttBtn" />
                 {/if}
             {/form}
-            <div class="owm_fake_input owm_chat_input_wrap"><input type="text" id="newMessageText" name="newMessageText" placeholder="{text key='mailbox+text_message_invitation' escape=true}" /></div>
+            <div class="owm_fake_input owm_chat_input_wrap">
+                <input type="text" id="newMessageText" name="newMessageText" placeholder="{text key='mailbox+text_message_invitation' escape=true}" />
+            </div>
             
             {if !empty($sendAuthMessage)}
                 <div class="owm_anno owm_info">{$sendAuthMessage}</div>

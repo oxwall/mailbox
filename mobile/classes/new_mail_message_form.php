@@ -9,7 +9,8 @@ class MAILBOX_MCLASS_NewMailMessageForm extends Form
         $this->setEnctype(Form::ENCTYPE_MULTYPART_FORMDATA);
 
         $field = new TextField('newMessageText');
-        $field->setValue(OW::getLanguage()->text('mailbox', 'text_message_invitation'));
+        $field->setHasInvitation(true);
+        $field->setInvitation(OW::getLanguage()->text('mailbox', 'text_message_invitation'));
         $field->setId('newMessageText');
         $this->addElement($field);
 

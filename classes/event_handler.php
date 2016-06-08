@@ -797,9 +797,19 @@ class MAILBOX_CLASS_EventHandler
             return false;
         }
 
-        if ( !OW::getAuthorization()->isUserAuthorized($params['userId'], 'mailbox', 'send_chat_message') )
+        $isAuthorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message');
+
+        if ( !$isAuthorizedSendMessage )
         {
-            return false;
+            // check the promotion status
+            $promotedStatus = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message', array(
+                'userId' => $params['userId']
+            ));
+
+            $isPromoted = !empty($promotedStatus['status'])
+                    && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
+
+            return $isPromoted;
         }
 
         return true;

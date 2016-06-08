@@ -797,11 +797,9 @@ class MAILBOX_CLASS_EventHandler
             return false;
         }
 
-        $authorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message', array(
-            'userId' => $params['userId']
-        ));
+        $isAuthorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message');
 
-        if ( !$authorizedSendMessage )
+        if ( !$isAuthorizedSendMessage )
         {
             // check the promotion status
             $promotedStatus = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message', array(
@@ -809,14 +807,9 @@ class MAILBOX_CLASS_EventHandler
             ));
 
             $isPromoted = !empty($promotedStatus['status'])
-                && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
+                    && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
 
-            if ( $isPromoted )
-            {
-                return true;
-            }
-
-            return false;
+            return $isPromoted;
         }
 
         return true;

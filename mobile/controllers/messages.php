@@ -342,10 +342,9 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
                 {
                     $conversationService->addMessageAttachments($message->id, $files);
                 }
-                
-                BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
             }
-
+            
+            BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
             $this->echoOut( array('message'=>$conversationService->getMessageData($message)) );
         }
         catch(InvalidArgumentException $e)

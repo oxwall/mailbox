@@ -118,6 +118,7 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'updatePlugin'));
         
         OW::getEventManager()->bind('base.after_avatar_update', array($this, 'onChangeUserAvatar'));
+        OW::getEventManager()->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'onPluginsInitCheckUserStatus'));
     }
 
     public function init()
@@ -1579,5 +1580,18 @@ class MAILBOX_CLASS_EventHandler
 
         $event->setData($result);
         return $result;
+    }
+
+    public function onPluginsInitCheckUserStatus()
+    {
+        if (OW::getUser()->isAuthenticated()) {
+            $user = BOL_UserService::getInstance()->findUserById(OW::getUser()->getId());
+            if ($user !== null) {
+                if ((int)$user->emailVerify === 0 && OW::getConfig()->getValue('base', 'confirm_email')) {
+                    OW::getRequestHandler()->addCatchAllRequestsExclude('base.email_verify', 'MAILBOX_CTRL_Mailbox', 'users');
+                    OW::getRequestHandler()->addCatchAllRequestsExclude('base.email_verify', 'MAILBOX_CTRL_Mailbox', 'convs');
+                }
+            }
+        }
     }
 }

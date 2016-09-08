@@ -81,7 +81,7 @@ final class MAILBOX_BOL_ConversationService
      *
      * @var MAILBOX_BOL_ConversationService
      */
-    private static $classInstance;
+    private static $instance;
 
     /**
      * Class constructor
@@ -102,12 +102,19 @@ final class MAILBOX_BOL_ConversationService
      */
     public static function getInstance()
     {
-        if ( self::$classInstance === null )
+        if ( static::$instance == null )
         {
-            self::$classInstance = new self();
+            try
+            {
+                static::$instance = OW::getClassInstance(static::class);
+            }
+            catch ( ReflectionException $ex )
+            {
+                static::$instance = new static();
+            }
         }
 
-        return self::$classInstance;
+        return static::$instance;
     }
 
     public function getUnreadMessageListForConsole( $userId, $first, $count, $lastPingTime, $ignoreList = array() )

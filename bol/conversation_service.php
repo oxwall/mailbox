@@ -38,6 +38,8 @@
  */
 final class MAILBOX_BOL_ConversationService
 {
+    use OW_Singleton;
+
     const EVENT_MARK_CONVERSATION = 'mailbox.mark_conversation';
     const EVENT_DELETE_CONVERSATION = 'mailbox.delete_conversation';
 
@@ -76,12 +78,7 @@ final class MAILBOX_BOL_ConversationService
             'avi', 'wmv', 'mp3', '3gp', 'flv', 'mkv', 'mpeg', 'mpg', 'swf',
             'zip', 'gz', '.tgz', 'gzip', '7z', 'bzip2', 'rar'
         );
-    /**
-     * Class instance
-     *
-     * @var MAILBOX_BOL_ConversationService
-     */
-    private static $instance;
+
 
     /**
      * Class constructor
@@ -95,27 +92,6 @@ final class MAILBOX_BOL_ConversationService
         $this->userLastDataDao = MAILBOX_BOL_UserLastDataDao::getInstance();
     }
 
-    /**
-     * Returns class instance
-     *
-     * @return MAILBOX_BOL_ConversationService
-     */
-    public static function getInstance()
-    {
-        if ( static::$instance == null )
-        {
-            try
-            {
-                static::$instance = OW::getClassInstance(static::class);
-            }
-            catch ( ReflectionException $ex )
-            {
-                static::$instance = new static();
-            }
-        }
-
-        return static::$instance;
-    }
 
     public function getUnreadMessageListForConsole( $userId, $first, $count, $lastPingTime, $ignoreList = array() )
     {

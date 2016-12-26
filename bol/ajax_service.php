@@ -563,9 +563,13 @@ class MAILBOX_BOL_AjaxService {
             }
             else
             {
-                $conversationIds = $this->conversationDao->findConversationByKeyword($kw, 16);
+                $conversationService = MAILBOX_BOL_ConversationService::getInstance();
 
-                $conversations = MAILBOX_BOL_ConversationService::getInstance()->getConversationItemByConversationIdList( $conversationIds );
+                $eventParams = $conversationService->getQueryFilter(MAILBOX_BOL_ConversationService::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+                $conversationIds = $this->conversationDao->findConversationByKeyword($eventParams, $kw, 16);
+
+                $conversations = $conversationService->getConversationItemByConversationIdList( $conversationIds );
             }
         }
 

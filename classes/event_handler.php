@@ -724,7 +724,7 @@ class MAILBOX_CLASS_EventHandler
             }
         }
 
-        $im_toolbar = new MAILBOX_CMP_Toolbar();
+        $im_toolbar = OW::getClassInstance('MAILBOX_CMP_Toolbar');
         OW::getDocument()->appendBody($im_toolbar->render());
     }
 
@@ -926,8 +926,12 @@ class MAILBOX_CLASS_EventHandler
 
                         if (isset($action['data']['searching']) && $action['data']['searching'] == 1)
                         {
-                            $conversationIds = MAILBOX_BOL_ConversationDao::getInstance()->findConversationByKeyword($action['data']['kw'], 8, $action['data']['from']);
-                            $ajaxActionResponse[$action['uniqueId']] = MAILBOX_BOL_ConversationService::getInstance()->getConversationItemByConversationIdList( $conversationIds );
+                            $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+                            $eventParams = $conversationService->getQueryFilter(MAILBOX_BOL_ConversationService::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+                            $conversationIds = $conversationService->findConversationByKeyword($eventParams, $action['data']['kw'], 8, $action['data']['from']);
+                            $ajaxActionResponse[$action['uniqueId']] =$conversationService->getConversationItemByConversationIdList( $conversationIds );
                         }
                         else
                         {

@@ -42,6 +42,8 @@ final class MAILBOX_BOL_ConversationService
 
     const EVENT_MARK_CONVERSATION = 'mailbox.mark_conversation';
     const EVENT_DELETE_CONVERSATION = 'mailbox.delete_conversation';
+    const EVENT_ON_BEFORE_GET_CONSOLE_CONVERSATION_LIST = 'mailbox.get_console_conversation_list';
+    const EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID = 'mailbox.get_conversation_list_by_user_id';
 
     const MARK_TYPE_READ = 'read';
     const MARK_TYPE_UNREAD = 'unread';
@@ -3160,14 +3162,19 @@ final class MAILBOX_BOL_ConversationService
     {
         $activeModes = $this->getActiveModeList();
 
-        return (int)$this->conversationDao->countConversationListByUserId($userId, $activeModes);
+        $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+        return (int)$this->conversationDao->countConversationListByUserId($eventParams, $userId, $activeModes);
     }
 
     public function getConversationListByUserId($userId, $from = 0, $count = 50, $convId = null){
         $data = array();
 
         $activeModes = $this->getActiveModeList();
-        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($userId, $activeModes, $from, $count, $convId);
+
+        $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($eventParams, $userId, $activeModes, $from, $count, $convId);
 
         foreach($conversationItemList as $i => $conversation)
         {
@@ -3244,7 +3251,9 @@ final class MAILBOX_BOL_ConversationService
 
         $activeModes = $this->getActiveModeList();
 
-        return $this->conversationDao->getConsoleConversationList($activeModes, $userId, $first, $count, $lastPingTime, $ignoreList);
+        $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONSOLE_CONVERSATION_LIST);
+
+        return $this->conversationDao->getConsoleConversationList($eventParams, $activeModes, $userId, $first, $count, $lastPingTime, $ignoreList);
     }
 
     public function getMarkedUnreadConversationList( $userId, $ignoreList = array() )
@@ -3833,5 +3842,18 @@ final class MAILBOX_BOL_ConversationService
             
         }        
         
+    }
+
+    public function getQueryFilter( $eventName, array $options = array(), array $data = array() )
+    {
+        $event = new BASE_CLASS_QueryBuilderEvent($eventName, $options);
+
+        OW::getEventManager()->trigger($event);
+
+        return array(
+            'join' => $event->getJoin(),
+            'where' => $event->getWhere(),
+            'order' => $event->getOrder()
+        );
     }
 }

@@ -7,6 +7,7 @@
  */
 class MAILBOX_BOL_AjaxService {
 
+    const ROW_COUNT = 16;
     const MAX_MESSAGE_TEXT_LENGTH = 24000;
     /**
      * Class instance
@@ -472,7 +473,7 @@ class MAILBOX_BOL_AjaxService {
             }
             else
             {
-                $userIds = $this->findUsers($kw, 16);
+                $userIds = $this->findUsers($kw, self::ROW_COUNT);
             }
         }
 
@@ -520,7 +521,7 @@ class MAILBOX_BOL_AjaxService {
             }
             else
             {
-                $userIds = $this->findUsers($kw, 16);
+                $userIds = $this->findUsers($kw, self::ROW_COUNT);
             }
         }
 
@@ -563,9 +564,13 @@ class MAILBOX_BOL_AjaxService {
             }
             else
             {
-                $conversationIds = $this->conversationDao->findConversationByKeyword($kw, 16);
+                $conversationService = MAILBOX_BOL_ConversationService::getInstance();
 
-                $conversations = MAILBOX_BOL_ConversationService::getInstance()->getConversationItemByConversationIdList( $conversationIds );
+                $eventParams = $conversationService->getQueryFilter(MAILBOX_BOL_ConversationService::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+                $conversationIds = $this->conversationDao->findConversationByKeyword($kw, self::ROW_COUNT, $eventParams);
+
+                $conversations = $conversationService->getConversationItemByConversationIdList( $conversationIds );
             }
         }
 

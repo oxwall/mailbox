@@ -31,6 +31,8 @@
 
 class MAILBOX_CLASS_EventHandler
 {
+    const ROW_FIRST = 0;
+    const ROW_COUNT = 8;
     const CONSOLE_ITEM_KEY = 'mailbox';
 
     /**
@@ -724,7 +726,7 @@ class MAILBOX_CLASS_EventHandler
             }
         }
 
-        $im_toolbar = new MAILBOX_CMP_Toolbar();
+        $im_toolbar = OW::getClassInstance('MAILBOX_CMP_Toolbar');
         OW::getDocument()->appendBody($im_toolbar->render());
     }
 
@@ -926,8 +928,12 @@ class MAILBOX_CLASS_EventHandler
 
                         if (isset($action['data']['searching']) && $action['data']['searching'] == 1)
                         {
-                            $conversationIds = MAILBOX_BOL_ConversationDao::getInstance()->findConversationByKeyword($action['data']['kw'], 8, $action['data']['from']);
-                            $ajaxActionResponse[$action['uniqueId']] = MAILBOX_BOL_ConversationService::getInstance()->getConversationItemByConversationIdList( $conversationIds );
+                            $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+                            $eventParams = $conversationService->getQueryFilter(MAILBOX_BOL_ConversationService::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
+
+                            $conversationIds = $conversationService->findConversationByKeyword($action['data']['kw'], self::ROW_COUNT, $action['data']['from'], $eventParams);
+                            $ajaxActionResponse[$action['uniqueId']] =$conversationService->getConversationItemByConversationIdList( $conversationIds );
                         }
                         else
                         {
@@ -1109,7 +1115,7 @@ class MAILBOX_CLASS_EventHandler
             return;
         }
 
-        $conversations = $this->service->getConsoleConversationList($userId, 0, 8, $params['console']['time'], $params['ids']);
+        $conversations = $this->service->getConsoleConversationList($userId, self::ROW_FIRST, self::ROW_COUNT, $params['console']['time'], $params['ids']);
 
         $conversationIdList = array();
         foreach ( $conversations as $conversationData )

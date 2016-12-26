@@ -341,8 +341,13 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
     }
 
 
-    public function findConversationItemListByUserId($eventParams, $userId, $activeModes, $from = 0, $count = 50, $convId = null)
+    public function findConversationItemListByUserId($userId, $activeModes, $from = 0, $count = 50, $convId = null, $eventParams = array())
     {
+        if( empty($eventParams) )
+        {
+            $eventParams['where'] = '1';
+        }
+
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
             $condition = "1 ";
@@ -434,7 +439,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
 
                  INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
                     ON ( `conv`.`lastMessageId` = `initiatorMessage`.`id` )
-                 {$eventParams['join']}
+                 
                  WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  ) AND {$eventParams['where']}
                         OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `initiatorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))
 
@@ -447,8 +452,13 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         return $this->dbo->queryForList($sql, array('user' => $userId, 'from'=>$from, 'count'=>$count));
     }
 
-    public function countConversationListByUserId($eventParams, $userId, $activeModes)
+    public function countConversationListByUserId($userId, $activeModes, $eventParams = array())
     {
+        if( empty($eventParams) )
+        {
+            $eventParams['where'] = '1';
+        }
+
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
             $condition = "1 ";
@@ -475,7 +485,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
 
                  LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `mess`
                     ON ( `conv`.`id` = `mess`.conversationId )
-                 {$eventParams['join']}
+                 
                  WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `mess`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
                         OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `mess`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))  AND `last_m`.`id` IS NOT NULL AND {$eventParams['where']}
                 GROUP BY `conv`.`id`) AS `cnt`";
@@ -520,8 +530,13 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         return (int) $this->dbo->queryForColumn($sql, array('user' => $userId));
     }
 
-    public function getConsoleConversationList( $eventParams, $activeModes, $userId, $first, $count, $lastPingTime = null, $ignoreList = array() )
+    public function getConsoleConversationList( $activeModes, $userId, $first, $count, $lastPingTime = null, $ignoreList = array(), $eventParams = array() )
     {
+        if( empty($eventParams) )
+        {
+            $eventParams['where'] = '1';
+        }
+
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
             $condition = "1 ";
@@ -623,8 +638,13 @@ AND (( `conv`.`initiatorId` = :user AND NOT `conv`.`read` & ". self::READ_INITIA
         return $this->dbo->queryForList($sql, array('user' => $userId, 'first' => $first, 'count' => $count));
     }
 
-    public function findConversationByKeyword( $eventParams, $kw, $limit = null, $from = 0 )
+    public function findConversationByKeyword( $kw, $limit = null, $from = 0, $eventParams = array() )
     {
+        if( empty($eventParams) )
+        {
+            $eventParams['where'] = '1';
+        }
+
         $questionName = OW::getConfig()->getValue('base', 'display_name_question');
         $questionDataTable = BOL_QuestionDataDao::getInstance()->getTableName();
 
@@ -667,7 +687,6 @@ AND (( `conv`.`initiatorId` = :user AND NOT `conv`.`read` & ". self::READ_INITIA
                     ON ( `conv`.`lastMessageId` = `message`.`id` )
 
                  {$join}
-                 {$eventParams['join']}
 
                  WHERE ( {$where} ) AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `message`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
                         OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `message`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) )) AND {$eventParams['where']}
@@ -720,7 +739,7 @@ AND (( `conv`.`initiatorId` = :user AND NOT `conv`.`read` & ". self::READ_INITIA
 
                  INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `message`
                     ON ( `conv`.`lastMessageId` = `message`.`id` )
-                 {$eventParams['join']}
+                 
                  WHERE conv.subject LIKE :kw AND (  `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `message`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` )) AND {$eventParams['where']}
 
 

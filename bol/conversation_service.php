@@ -3164,7 +3164,7 @@ final class MAILBOX_BOL_ConversationService
 
         $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
 
-        return (int)$this->conversationDao->countConversationListByUserId($eventParams, $userId, $activeModes);
+        return (int)$this->conversationDao->countConversationListByUserId($userId, $activeModes, $eventParams);
     }
 
     public function getConversationListByUserId($userId, $from = 0, $count = 50, $convId = null){
@@ -3174,7 +3174,7 @@ final class MAILBOX_BOL_ConversationService
 
         $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
 
-        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($eventParams, $userId, $activeModes, $from, $count, $convId);
+        $conversationItemList = $this->conversationDao->findConversationItemListByUserId($userId, $activeModes, $from, $count, $convId, $eventParams);
 
         foreach($conversationItemList as $i => $conversation)
         {
@@ -3253,7 +3253,7 @@ final class MAILBOX_BOL_ConversationService
 
         $eventParams = $this->getQueryFilter(self::EVENT_ON_BEFORE_GET_CONSOLE_CONVERSATION_LIST);
 
-        return $this->conversationDao->getConsoleConversationList($eventParams, $activeModes, $userId, $first, $count, $lastPingTime, $ignoreList);
+        return $this->conversationDao->getConsoleConversationList($activeModes, $userId, $first, $count, $lastPingTime, $ignoreList, $eventParams);
     }
 
     public function getMarkedUnreadConversationList( $userId, $ignoreList = array() )

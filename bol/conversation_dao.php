@@ -440,7 +440,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                  INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
                     ON ( `conv`.`lastMessageId` = `initiatorMessage`.`id` )
                  
-                 WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  ) AND {$eventParams['where']}
+                 WHERE {$condition} AND {$eventParams['where']} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
                         OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `initiatorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))
 
                 GROUP BY `conv`.`id`

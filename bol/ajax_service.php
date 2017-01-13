@@ -568,7 +568,7 @@ class MAILBOX_BOL_AjaxService {
 
                 $eventParams = $conversationService->getQueryFilter(MAILBOX_BOL_ConversationService::EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID);
 
-                $conversationIds = $this->conversationDao->findConversationByKeyword($kw, self::ROW_COUNT, $eventParams);
+                $conversationIds = $this->conversationDao->findConversationByKeyword($kw, self::ROW_COUNT, 0, $eventParams);
 
                 $conversations = $conversationService->getConversationItemByConversationIdList( $conversationIds );
             }

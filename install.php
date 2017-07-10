@@ -175,8 +175,6 @@ BOL_PreferenceService::getInstance()->savePreference($preference);
 
 OW::getLanguage()->importPluginLangs(OW::getPluginManager()->getPlugin('mailbox')->getRootDir() . 'langs.zip', 'mailbox');
 
-OW::getPluginManager()->addPluginSettingsRouteName('mailbox', 'mailbox_admin_config');
-
 $preference = BOL_PreferenceService::getInstance()->findPreference('mailbox_user_settings_enable_sound');
 
 if ( empty($preference) )

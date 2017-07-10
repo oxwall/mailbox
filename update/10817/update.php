@@ -215,4 +215,4 @@ class MessageConverter{
 $c = new MessageConverter();
 $c->start();
 
-Updater::getConfigService()->saveConfig('mailbox', 'active_modes', json_encode('chat'));
+Updater::getConfigService()->saveConfig('mailbox', 'active_modes', json_encode(array('chat')));

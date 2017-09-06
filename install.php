@@ -175,8 +175,6 @@ BOL_PreferenceService::getInstance()->savePreference($preference);
 
 OW::getLanguage()->importPluginLangs(OW::getPluginManager()->getPlugin('mailbox')->getRootDir() . 'langs.zip', 'mailbox');
 
-OW::getPluginManager()->addPluginSettingsRouteName('mailbox', 'mailbox_admin_config');
-
 $preference = BOL_PreferenceService::getInstance()->findPreference('mailbox_user_settings_enable_sound');
 
 if ( empty($preference) )
@@ -205,7 +203,7 @@ $preference->sortOrder = 1;
 
 BOL_PreferenceService::getInstance()->savePreference($preference);
 
-$modes = array('mail', 'chat');
+$modes = array('chat');
 OW::getConfig()->addConfig('mailbox', 'active_modes', json_encode($modes));
 OW::getConfig()->addConfig('mailbox', 'show_all_members', false);
 OW::getConfig()->addConfig('mailbox', 'updated_to_messages', 1);

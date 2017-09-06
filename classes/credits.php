@@ -59,17 +59,6 @@ class MAILBOX_CLASS_Credits
         {
             $activeModes = array('mail', 'chat');
 
-            if (in_array('mail', $activeModes))
-            {
-                $this->actions[] = array('pluginKey' => 'mailbox', 'action' => 'send_message', 'amount' => 0);
-                $this->actions[] = array('pluginKey' => 'mailbox', 'action' => 'read_message', 'amount' => 0);
-                $this->actions[] = array('pluginKey' => 'mailbox', 'action' => 'reply_to_message', 'amount' => 0);
-
-                $this->authActions['send_message'] = 'send_message';
-                $this->authActions['read_message'] = 'read_message';
-                $this->authActions['reply_to_message'] = 'reply_to_message';
-            }
-
             if (in_array('chat', $activeModes))
             {
                 $this->actions[] = array('pluginKey' => 'mailbox', 'action' => 'send_chat_message', 'amount' => 0);

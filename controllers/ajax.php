@@ -165,21 +165,6 @@ class MAILBOX_CTRL_Ajax extends OW_ActionController
                 exit(json_encode($info));
             }
 
-            if (empty( $_POST['checkStatus'] ) || $_POST['checkStatus'] != 2)
-            {
-                $onlineStatus = BOL_UserService::getInstance()->findOnlineStatusForUserList(array($user->getId()));
-                if (!$onlineStatus[$user->getId()])
-                {
-                    $displayname = BOL_UserService::getInstance()->getDisplayName($user->getId());
-                    $info = array(
-                        'warning' => true,
-                        'message' => OW::getLanguage()->text('mailbox', 'user_went_offline', array('displayname'=>$displayname)),
-                        'type' => 'warning'
-                    );
-                    exit(json_encode($info));
-                }
-            }
-
             $info = $conversationService->getUserInfo($user->getId());
             exit(json_encode($info));
         }

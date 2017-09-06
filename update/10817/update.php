@@ -50,3 +50,6 @@ if ($langId !== null)
 
 $modes = array('chat');
 Updater::getConfigService()->saveConfig('mailbox', 'active_modes', json_encode($modes));
+
+$query = "UPDATE `" . OW_DB_PREFIX . "base_plugin` set `adminSettingsRoute` = null WHERE `module` = 'mailbox' AND `key` = 'mailbox'";
+Updater::getDbo()->query($query);

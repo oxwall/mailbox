@@ -187,6 +187,34 @@ class MAILBOX_CLASS_EventHandler
             }
         }
 
+        if (OW::getConfig()->configExists('mailbox', 'updated_to_chat_only'))
+        {
+            /**
+             * Update to Chat Only Mode
+             */
+            $updated_to_chat_only = (int)OW::getConfig()->getValue('mailbox', 'updated_to_chat_only');
+
+            if ($updated_to_chat_only === 0)
+            {
+
+                $deleteEvent = new BASE_CLASS_EventCollector('usercredits.action_delete');
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'send_message'));
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'read_message'));
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'reply_to_message'));
+
+                OW::getEventManager()->trigger($deleteEvent);
+
+                $groupName = 'mailbox';
+                $authorization = OW::getAuthorization();
+
+                $authorization->deleteAction($groupName, 'read_message');
+                $authorization->deleteAction($groupName, 'send_message');
+                $authorization->deleteAction($groupName, 'reply_to_message');
+
+                OW::getConfig()->saveConfig('mailbox', 'updated_to_chat_only', 1);
+            }
+        }
+
         if (OW::getConfig()->configExists('mailbox', 'install_complete'))
         {
             $installComplete = (int)OW::getConfig()->getValue('mailbox', 'install_complete');

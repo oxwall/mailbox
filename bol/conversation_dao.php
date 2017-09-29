@@ -343,10 +343,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
 
     public function findConversationItemListByUserId($userId, $activeModes, $from = 0, $count = 50, $convId = null, $eventParams = array())
     {
-        if( empty($eventParams) )
-        {
-            $eventParams['where'] = '1';
-        }
+        list($join, $where) = $this->parseEventParams($eventParams);
 
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
@@ -436,11 +433,11 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                         `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`
 
                  FROM `" . $this->getTableName() . "` AS `conv`
-
+                 {$join}
                  INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
                     ON ( `conv`.`lastMessageId` = `initiatorMessage`.`id` )
                  
-                 WHERE {$condition} AND {$eventParams['where']} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
+                 WHERE {$condition} AND {$where} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
                         OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `initiatorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))
 
                 GROUP BY `conv`.`id`
@@ -454,10 +451,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
 
     public function countConversationListByUserId($userId, $activeModes, $eventParams = array())
     {
-        if( empty($eventParams) )
-        {
-            $eventParams['where'] = '1';
-        }
+        list($join, $where) = $this->parseEventParams($eventParams);
 
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
@@ -479,7 +473,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         }
 
         $sql = "SELECT COUNT(*) FROM ( SELECT `conv`.`id` as `count` FROM `" . $this->getTableName() . "` AS `conv`
-
+                 {$join}
                  LEFT JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
                      ON ( `last_m`.`conversationId` = `conv`.`id` )
 
@@ -487,7 +481,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                     ON ( `conv`.`id` = `mess`.conversationId )
                  
                  WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `mess`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
-                        OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `mess`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))  AND `last_m`.`id` IS NOT NULL AND {$eventParams['where']}
+                        OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `mess`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))  AND `last_m`.`id` IS NOT NULL AND {$where}
                 GROUP BY `conv`.`id`) AS `cnt`";
 
         return $this->dbo->queryForColumn($sql, array('user' => $userId));
@@ -532,10 +526,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
 
     public function getConsoleConversationList( $activeModes, $userId, $first, $count, $lastPingTime = null, $ignoreList = array(), $eventParams = array() )
     {
-        if( empty($eventParams) )
-        {
-            $eventParams['where'] = '1';
-        }
+        list($join, $where) = $this->parseEventParams($eventParams);
 
         if (in_array('chat', $activeModes) && in_array('mail', $activeModes))
         {
@@ -564,7 +555,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
         }
 
         $sql = " SELECT `last_m`.*, `mess`.*, `conv`.* FROM `" . $this->getTableName() . "` AS `conv`
-
+                 {$join}
                  INNER JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
                      ON ( `last_m`.`conversationId` = `conv`.`id` )
 
@@ -572,7 +563,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                     ON ( `conv`.`id` = `mess`.conversationId )
 
                  WHERE {$condition} AND ( ( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `conv`.`lastMessageTimestamp` > `conv`.`initiatorDeletedTimestamp`) AND `mess`.`id` = `last_m`.`interlocutorMessageId` )
-                        OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `conv`.`lastMessageTimestamp` > `conv`.`interlocutorDeletedTimestamp`) AND `mess`.`id` = `last_m`.`initiatorMessageId` ) ) AND " . $eventParams["where"] . " $ignore
+                        OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `conv`.`lastMessageTimestamp` > `conv`.`interlocutorDeletedTimestamp`) AND `mess`.`id` = `last_m`.`initiatorMessageId` ) ) AND {$where} {$ignore}
 
                  ORDER BY if( ((`conv`.`initiatorId` = :user AND `conv`.`viewed` &  " . (self::VIEW_INITIATOR) . ") OR (`conv`.`interlocutorId` = :user AND `conv`.`viewed` &  " . (self::VIEW_INTERLOCUTOR) . ")), 1, 0  ), `mess`.`timeStamp` DESC
 
@@ -860,5 +851,14 @@ AND (( `conv`.`initiatorId` = :user AND NOT `conv`.`read` & ". self::READ_INITIA
         $example->setLimitClause(0,1);
 
         return $this->findObjectByExample($example);
+    }
+
+    private function parseEventParams( $eventParams )
+    {
+        $join = ( isset($eventParams['join']) ) ? $eventParams['join'] : '';
+        $where = ( isset($eventParams['where']) ) ? $eventParams['where'] : '1';
+        $order = ( isset($eventParams['order']) ) ? $eventParams['order'] : '';
+
+        return array($join, $where, $order);
     }
 }

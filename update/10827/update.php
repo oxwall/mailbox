@@ -29,28 +29,4 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-$languageService = Updater::getLanguageService();
-
-$languages = $languageService->getLanguages();
-$langId = null;
-
-foreach ($languages as $lang)
-{
-    if ($lang->tag == 'en')
-    {
-        $langId = $lang->id;
-        break;
-    }
-}
-
-if ($langId !== null)
-{
-    $languageService->addOrUpdateValue($langId, 'mailbox', 'user_list_chat_offline', 'Chat');
-}
-
-$modes = array('chat');
-Updater::getConfigService()->saveConfig('mailbox', 'active_modes', json_encode($modes));
-
-$query = "UPDATE `" . OW_DB_PREFIX . "base_plugin` set `adminSettingsRoute` = null WHERE `module` = 'mailbox' AND `key` = 'mailbox'";
-Updater::getDbo()->query($query);
-Updater::getConfigService()->saveConfig('mailbox', 'active_modes', json_encode(array('chat')));
+Updater::getConfigService()->addConfig('mailbox', 'updated_to_chat_only', 0, '');

@@ -39,6 +39,7 @@ OW::getRouter()->addRoute(new OW_Route('mailbox_conv_list', 'mailbox/convs', 'MA
 OW::getRouter()->addRoute(new OW_Route('mailbox_chat_conversation', 'messages/chat/:userId', 'MAILBOX_MCTRL_Messages', 'chatConversation'));
 OW::getRouter()->addRoute(new OW_Route('mailbox_mail_conversation', 'messages/mail/:convId', 'MAILBOX_MCTRL_Messages', 'mailConversation'));
 OW::getRouter()->addRoute(new OW_Route('mailbox_compose_mail_conversation', 'messages/compose/:opponentId', 'MAILBOX_MCTRL_Messages', 'composeMailConversation'));
+OW::getRouter()->addRoute(new OW_Route('mailbox_redirect_to_chat_conversation', 'chat/redirect/:opponentId', 'MAILBOX_MCTRL_Messages', 'redirectToChatConversation'));
 
 $eventHandler = new MAILBOX_CLASS_EventHandler();
 $eventHandler->genericInit();

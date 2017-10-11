@@ -203,7 +203,7 @@ $preference->sortOrder = 1;
 
 BOL_PreferenceService::getInstance()->savePreference($preference);
 
-$modes = array('mail', 'chat');
+$modes = array('chat');
 OW::getConfig()->addConfig('mailbox', 'active_modes', json_encode($modes));
 OW::getConfig()->addConfig('mailbox', 'show_all_members', false);
 OW::getConfig()->addConfig('mailbox', 'updated_to_messages', 1);

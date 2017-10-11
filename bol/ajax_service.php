@@ -47,19 +47,7 @@ class MAILBOX_BOL_AjaxService {
         $conversationService = MAILBOX_BOL_ConversationService::getInstance();
         $language = OW::getLanguage();
 
-        if ($errorMessage = $conversationService->checkPermissions())
-        {
-            return array('error'=>$errorMessage);
-        }
-
         $userId = OW::getUser()->getId();
-
-//        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval($userId);
-//        if (!$userSendMessageIntervalOk)
-//        {
-//            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
-//            return array('error'=>$language->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)));
-//        }
 
         $conversationId = $params['convId'];
         if ( !isset($conversationId) )

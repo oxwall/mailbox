@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<prefix name="mailbox" label="Mailbox" language_tag="en" language_label="English">
+    <key name="send_chat_message"><value>Send message</value></key>
+</prefix>

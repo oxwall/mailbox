@@ -125,6 +125,8 @@ class MAILBOX_CLASS_EventHandler
 
     public function init()
     {
+        OW::getEventManager()->bind(BASE_CMP_ProfileActionToolbar::EVENT_NAME, array($this, 'sendMessageActionTool'));
+
         OW::getEventManager()->bind('notifications.collect_actions', array($this, 'onNotifyActions'));
         OW::getEventManager()->bind('mailbox.send_message', array($this, 'onSendMessage'));
         OW::getEventManager()->bind('base.on_avatar_toolbar_collect', array($this, 'onAvatarToolbarCollect'));
@@ -247,6 +249,83 @@ class MAILBOX_CLASS_EventHandler
                 OW::getConfig()->saveConfig('mailbox', 'install_complete', 1);
 
             }
+        }
+    }
+
+    public function sendMessageActionTool( BASE_CLASS_EventCollector $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['userId']) )
+        {
+            return;
+        }
+
+        $userId = (int) $params['userId'];
+
+        if ( OW::getUser()->getId() == $userId )
+        {
+            return;
+        }
+
+        if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $params['userId']) )
+        {
+            return;
+        }
+
+        $eventParams = array(
+            'action' => 'mailbox_invite_to_chat',
+            'ownerId' => $params['userId'],
+            'viewerId' => OW::getUser()->getId()
+        );
+
+        try
+        {
+            OW::getEventManager()->getInstance()->call('privacy_check_permission', $eventParams);
+        }
+        catch ( RedirectException $e )
+        {
+            return;
+        }
+
+        $isAuthorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message');
+
+        $showSendMessageButton = true;
+
+        if ( !$isAuthorizedSendMessage )
+        {
+            // check the promotion status
+            $promotedStatus = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message', array(
+                'userId' => OW::getUser()->getId()
+            ));
+
+            $isPromoted = !empty($promotedStatus['status'])
+                && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
+
+            $showSendMessageButton = $isPromoted;
+        }
+
+        if ( $showSendMessageButton )
+        {
+            $linkId = 'mb' . rand(10, 1000000);
+            $linkSelector = '#' . $linkId;
+            $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
+
+                OW.trigger("base.online_now_click", [{$userId}]);
+
+            });', array('linkSelector'=>$linkSelector, 'userId'=>$params['userId']));
+
+            OW::getDocument()->addOnloadScript($script);
+
+            $resultArray = array(
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'send_chat_message'),
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_chat_message",
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
+            );
+
+            $event->add($resultArray);
         }
     }
 

@@ -41,11 +41,24 @@ class MAILBOX_Cron extends OW_Cron
         {
             $this->addJob('mailboxUpdate', 2);
         }
-
+        $maxExecutionTime = ini_get('max_execution_time');
+        $maxExecutionTime = max(1, ceil($maxExecutionTime / 60)) * 2;
+        $this->addJob('convertMailboxToChat', $maxExecutionTime);
         $this->addJob('resetAllUsersLastData', 1);
         $this->addJob('deleteAttachmentFiles', 1440); //1 day
     }
+     public function convertMailboxToChat()
+      {
+        $sql = "SELECT COUNT(*) FROM `".MAILBOX_BOL_ConversationDao::getInstance()->getTableName()."` AS `cnv`
+                WHERE `cnv`.`subject` != 'mailbox_chat_conversation'";
 
+        $mailboxConversations = (int) OW::getDbo()->queryForColumn($sql);
+        if ($mailboxConversations > 0)
+        {
+            $c = new MAILBOX_CLASS_Converter();
+            $c->start();
+        }
+    }
     public function run()
     {
         //ignore

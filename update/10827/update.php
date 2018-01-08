@@ -29,22 +29,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @author Zarif Safiullin <zaph.work@gmail.com>
- * @package ow_plugins.mailbox
- * @since 1.6.1
- */
-OW::getRouter()->addRoute(new OW_Route('mailbox_user_list', 'mailbox/users', 'MAILBOX_CTRL_Mailbox', 'users'));
-OW::getRouter()->addRoute(new OW_Route('mailbox_conv_list', 'mailbox/convs', 'MAILBOX_CTRL_Mailbox', 'convs'));
-OW::getRouter()->addRoute(new OW_Route('mailbox_chat_conversation', 'messages/chat/:userId', 'MAILBOX_MCTRL_Messages', 'chatConversation'));
-OW::getRouter()->addRoute(new OW_Route('mailbox_mail_conversation', 'messages/mail/:convId', 'MAILBOX_MCTRL_Messages', 'mailConversation'));
-OW::getRouter()->addRoute(new OW_Route('mailbox_compose_mail_conversation', 'messages/compose/:opponentId', 'MAILBOX_MCTRL_Messages', 'composeMailConversation'));
-OW::getRouter()->addRoute(new OW_Route('mailbox_redirect_to_chat_conversation', 'chat/redirect/:opponentId', 'MAILBOX_MCTRL_Messages', 'redirectToChatConversation'));
-
-$eventHandler = new MAILBOX_CLASS_EventHandler();
-$eventHandler->genericInit();
-
-OW::getEventManager()->bind(BASE_CTRL_Ping::PING_EVENT . '.mobileMailboxConsole', array($eventHandler, 'onPing'));
-
-$eventHandler = new MAILBOX_MCLASS_EventHandler();
-$eventHandler->init();
+if( !Updater::getConfigService()->configExists('mailbox', 'updated_to_chat_only') )
+{
+    Updater::getConfigService()->addConfig('mailbox', 'updated_to_chat_only', 0, '');
+}

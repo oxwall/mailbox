@@ -185,6 +185,25 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
         }
     }
 
+    public function redirectToChatConversation($params)
+    {
+        if (!OW::getUser()->isAuthenticated())
+        {
+            throw new Redirect404Exception();
+        }
+
+        $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+        $conversationId = $conversationService->getChatConversationIdWithUserById(OW::getUser()->getId(), $params['opponentId']);
+
+        if (empty($conversationId))
+        {
+            $conversationService->createChatConversation(OW::getUser()->getId(), $params['opponentId']);
+        }
+
+        $this->redirect(OW::getRouter()->urlForRoute('mailbox_chat_conversation', array('userId'=> $params['opponentId'])));
+    }
+
     private function echoOut( $out )
     {
         echo '<script>window.parent.OWM.conversation.afterAttachment(' . json_encode($out) . ');</script>';

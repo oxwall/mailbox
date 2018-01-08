@@ -55,10 +55,6 @@ class MAILBOX_MCLASS_EventHandler
         }
 
         $activeModes = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
-        if (!in_array('mail', $activeModes))
-        {
-            return;
-        }
 
         $linkId = uniqid('send_message');
 
@@ -78,11 +74,23 @@ class MAILBOX_MCLASS_EventHandler
 
         OW::getDocument()->addOnloadScript($script);
 
-        $event->add(array(
-            "label" => OW::getLanguage()->text('mailbox', 'send_message'),
-            "href" => OW::getRouter()->urlForRoute('mailbox_compose_mail_conversation', array('opponentId'=>$userId)),
-            "id" => $linkId
-        ));
+        if (in_array('mail', $activeModes))
+        {
+            $event->add(array(
+                "label" => OW::getLanguage()->text('mailbox', 'send_message'),
+                "href" => OW::getRouter()->urlForRoute('mailbox_compose_mail_conversation', array('opponentId'=>$userId)),
+                "id" => $linkId
+            ));
+        }
+        else if (in_array('chat', $activeModes))
+        {
+            $event->add(array(
+                "label" => OW::getLanguage()->text('mailbox', 'send_message'),
+                "href" => OW::getRouter()->urlForRoute('mailbox_redirect_to_chat_conversation', array('opponentId'=>$userId)),
+                "id" => $linkId
+            ));
+        }
+
     }
 
     public function onConsolePagesCollect(BASE_CLASS_EventCollector $event)

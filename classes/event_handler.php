@@ -125,7 +125,7 @@ class MAILBOX_CLASS_EventHandler
 
     public function init()
     {
-        OW::getEventManager()->bind(BASE_CMP_ProfileActionToolbar::EVENT_NAME, array($this, 'sendPrivateMessageActionTool'));
+        OW::getEventManager()->bind(BASE_CMP_ProfileActionToolbar::EVENT_NAME, array($this, 'sendMessageActionTool'));
 
         OW::getEventManager()->bind('notifications.collect_actions', array($this, 'onNotifyActions'));
         OW::getEventManager()->bind('mailbox.send_message', array($this, 'onSendMessage'));
@@ -169,13 +169,6 @@ class MAILBOX_CLASS_EventHandler
                     {
                         $actions[] = array('pluginKey' => 'mailbox', 'action' => $name, 'amount' => 0);
                     }
-
-                    $deleteEvent = new BASE_CLASS_EventCollector('usercredits.action_delete');
-                    $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'send_message'));
-                    $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'read_message'));
-                    $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'reply_to_message'));
-
-                    OW::getEventManager()->trigger($deleteEvent);
                 }
                 else
                 {
@@ -193,6 +186,34 @@ class MAILBOX_CLASS_EventHandler
                 OW::getEventManager()->trigger($e);
 
                 OW::getConfig()->saveConfig('mailbox', 'updated_to_messages', 1);
+            }
+        }
+
+        if (OW::getConfig()->configExists('mailbox', 'updated_to_chat_only'))
+        {
+            /**
+             * Update to Chat Only Mode
+             */
+            $updated_to_chat_only = (int)OW::getConfig()->getValue('mailbox', 'updated_to_chat_only');
+
+            if ($updated_to_chat_only === 0)
+            {
+
+                $deleteEvent = new BASE_CLASS_EventCollector('usercredits.action_delete');
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'send_message'));
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'read_message'));
+                $deleteEvent->add(array('pluginKey' => 'mailbox', 'action' => 'reply_to_message'));
+
+                OW::getEventManager()->trigger($deleteEvent);
+
+                $groupName = 'mailbox';
+                $authorization = OW::getAuthorization();
+
+                $authorization->deleteAction($groupName, 'read_message');
+                $authorization->deleteAction($groupName, 'send_message');
+                $authorization->deleteAction($groupName, 'reply_to_message');
+
+                OW::getConfig()->saveConfig('mailbox', 'updated_to_chat_only', 1);
             }
         }
 
@@ -219,9 +240,6 @@ class MAILBOX_CLASS_EventHandler
                 }
                 else
                 {
-                    $authorization->addAction($groupName, 'read_message');
-                    $authorization->addAction($groupName, 'send_message');
-                    $authorization->addAction($groupName, 'reply_to_message');
 
                     $authorization->addAction($groupName, 'read_chat_message');
                     $authorization->addAction($groupName, 'send_chat_message');
@@ -234,7 +252,7 @@ class MAILBOX_CLASS_EventHandler
         }
     }
 
-    public function sendPrivateMessageActionTool( BASE_CLASS_EventCollector $event )
+    public function sendMessageActionTool( BASE_CLASS_EventCollector $event )
     {
         $params = $event->getParams();
 
@@ -250,209 +268,70 @@ class MAILBOX_CLASS_EventHandler
             return;
         }
 
-        $activeModeList = $this->service->getActiveModeList();
-        $mailModeEnabled = (in_array('mail', $activeModeList)) ? true : false;
-        $chatModeEnabled = (in_array('chat', $activeModeList)) ? true : false;
-        if (!$mailModeEnabled)
+        if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $params['userId']) )
         {
-            if (!$chatModeEnabled)
-            {
-                return;
-            }
-            else
-            {
-
-                if ( !OW::getUser()->isAuthorized('mailbox', 'send_chat_message') )
-                {
-                    $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message');
-                    if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
-                    {
-                        $linkId = 'mb' . rand(10, 1000000);
-                        $linkSelector = '#' . $linkId;
-                        $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
-
-                OW.authorizationLimitedFloatbox('.json_encode($status['msg']).');
-
-                });', array('linkSelector'=>$linkSelector));
-
-                        OW::getDocument()->addOnloadScript($script);
-
-                        $resultArray = array(
-                            BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'send_message'),
-                            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
-                            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
-                            BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_message",
-                            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
-                        );
-
-                        $event->add($resultArray);
-                    }
-
-                    return;
-                }
-
-                $checkResult = $this->service->checkUser(OW::getUser()->getId(), $userId);
-
-                if (!$checkResult['isSuspended'])
-                {
-                    $canInvite = $this->service->getInviteToChatPrivacySettings(OW::getUser()->getId(), $userId);
-                    if (!$canInvite)
-                    {
-                        $checkResult['isSuspended'] = true;
-                        $checkResult['suspendReasonMessage'] = OW::getLanguage()->text('mailbox', 'warning_user_privacy_friends_only', array('displayname' => BOL_UserService::getInstance()->getDisplayName($userId)));
-                    }
-                }
-
-                if ( $checkResult['isSuspended'] )
-                {
-                    $linkId = 'mb' . rand(10, 1000000);
-                    $script = "\$('#" . $linkId . "').click(function(){
-
-                window.OW.error(".json_encode($checkResult['suspendReasonMessage']).");
-
-            });";
-
-                    OW::getDocument()->addOnloadScript($script);
-                }
-                else
-                {
-                    $linkId = 'mb' . rand(10, 1000000);
-                    $linkSelector = '#' . $linkId;
-                    $data = $this->service->getUserInfo($userId);
-                    $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
-
-                var userData = {$data};
-
-                $.post(OWMailbox.openDialogResponderUrl, {
-                    userId: userData.opponentId,
-                    checkStatus: 2
-                }, function(data){
-
-                    if ( typeof data != \'undefined\'){
-                        if ( typeof data[\'warning\'] != \'undefined\' && data[\'warning\'] ){
-                            OW.message(data[\'message\'], data[\'type\']);
-                            return;
-                        }
-                        else{
-                            if (data[\'use_chat\'] && data[\'use_chat\'] == \'promoted\'){
-                                OW.Mailbox.contactManagerView.showPromotion();
-                            }
-                            else{
-                                OW.Mailbox.usersCollection.add(data);
-                                OW.trigger(\'mailbox.open_dialog\', {convId: data[\'convId\'], opponentId: data[\'opponentId\'], mode: \'chat\'});
-                            }
-                        }
-                    }
-                }, \'json\').complete(function(){
-
-                        $(\'#ow_chat_now_\'+userData.opponentId).removeClass(\'ow_hidden\');
-
-                        $(\'#ow_preloader_content_\'+userData.opponentId).addClass(\'ow_hidden\');
-                    });
-
-            });', array('linkSelector'=>$linkSelector, 'data'=>$data));
-
-                    OW::getDocument()->addOnloadScript($script);
-                }
-
-                $resultArray = array(
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'send_message'),
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_message",
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
-                );
-
-                $event->add($resultArray);
-
-                return;
-            }
-        }
-
-        if ( !OW::getUser()->isAuthorized('mailbox', 'send_message') )
-        {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_message');
-            if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
-            {
-                $linkId = 'mb' . rand(10, 1000000);
-                $linkSelector = '#' . $linkId;
-                $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
-
-                OW.authorizationLimitedFloatbox('.json_encode($status['msg']).');
-
-                });', array('linkSelector'=>$linkSelector));
-
-                OW::getDocument()->addOnloadScript($script);
-
-                $resultArray = array(
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'create_conversation_button'),
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_message",
-                    BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
-                );
-
-                $event->add($resultArray);
-            }
-
             return;
         }
 
-        $checkResult = $this->service->checkUser(OW::getUser()->getId(), $userId);
+        $eventParams = array(
+            'action' => 'mailbox_invite_to_chat',
+            'ownerId' => $params['userId'],
+            'viewerId' => OW::getUser()->getId()
+        );
 
-        if ( $checkResult['isSuspended'] )
+        try
         {
-            $linkId = 'mb' . rand(10, 1000000);
-            $script = "\$('#" . $linkId . "').click(function(){
-
-                window.OW.error(".json_encode($checkResult['suspendReasonMessage']).");
-
-            });";
-
-            OW::getDocument()->addOnloadScript($script);
+            OW::getEventManager()->getInstance()->call('privacy_check_permission', $eventParams);
         }
-        else
+        catch ( RedirectException $e )
+        {
+            return;
+        }
+
+        $isAuthorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message');
+
+        $showSendMessageButton = true;
+
+        if ( !$isAuthorizedSendMessage )
+        {
+            // check the promotion status
+            $promotedStatus = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message', array(
+                'userId' => OW::getUser()->getId()
+            ));
+
+            $isPromoted = !empty($promotedStatus['status'])
+                && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
+
+            $showSendMessageButton = $isPromoted;
+        }
+
+        if ( $showSendMessageButton )
         {
             $linkId = 'mb' . rand(10, 1000000);
             $linkSelector = '#' . $linkId;
-            $data = $this->service->getUserInfo($userId);
             $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
 
-                var data = {$data};
+                OW.trigger("base.online_now_click", [{$userId}]);
 
-                OW.trigger("mailbox.open_new_message_form", data);
-
-            });', array('linkSelector'=>$linkSelector, 'data'=>$data));
+            });', array('linkSelector'=>$linkSelector, 'userId'=>$params['userId']));
 
             OW::getDocument()->addOnloadScript($script);
+
+            $resultArray = array(
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'send_chat_message'),
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_chat_message",
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
+            );
+
+            $event->add($resultArray);
         }
-
-        $resultArray = array(
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'create_conversation_button'),
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_message",
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
-        );
-
-        $event->add($resultArray);
     }
 
     public function onNotifyActions( BASE_CLASS_EventCollector $e )
     {
         $modes = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
-
-        if (in_array('mail', $modes))
-        {
-            $e->add(array(
-                'section' => 'mailbox',
-                'action' => 'mailbox-new_message',
-                'sectionIcon' => 'ow_ic_mail',
-                'sectionLabel' => OW::getLanguage()->text('mailbox', 'messages_email_notifications_section_label'),
-                'description' => OW::getLanguage()->text('mailbox', 'messages_email_notifications_new_message'),
-                'selected' => true
-            ));
-        }
 
         if (in_array('chat', $modes))
         {
@@ -495,45 +374,15 @@ class MAILBOX_CLASS_EventHandler
         $language = OW::getLanguage();
         $mailboxEvent = new OW_Event('mailbox.admin.add_auth_labels');
         OW::getEventManager()->trigger($mailboxEvent);
-        $groupName = 'mailbox';
 
         $data = $mailboxEvent->getData();
         if (!empty($data))
         {
-            $read_message_action = BOL_AuthorizationService::getInstance()->findAction($groupName, 'read_message');
-            if (!empty($read_message_action))
-            {
-                $authorization = OW::getAuthorization();
-
-                $authorization->deleteAction($groupName, 'read_message');
-                $authorization->deleteAction($groupName, 'send_message');
-                $authorization->deleteAction($groupName, 'reply_to_message');
-            }
-
             $actions = $data['actions'];
         }
         else
         {
-            $modes = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
-
-            if (in_array('mail', $modes))
-            {
-                $read_message_action = BOL_AuthorizationService::getInstance()->findAction($groupName, 'read_message');
-                if (empty($read_message_action))
-                {
-                    $authorization = OW::getAuthorization();
-
-                    $authorization->addAction($groupName, 'read_message');
-                    $authorization->addAction($groupName, 'send_message');
-                    $authorization->addAction($groupName, 'reply_to_message');
-                }
-            }
-
             $actions = array(
-                'send_message' => $language->text('mailbox', 'auth_action_label_send_message'),
-                'read_message' => $language->text('mailbox', 'auth_action_label_read_message'),
-                'reply_to_message' => $language->text('mailbox', 'auth_action_label_reply_to_message'),
-
                 'send_chat_message' => $language->text('mailbox', 'auth_action_label_send_chat_message'),
                 'read_chat_message' => $language->text('mailbox', 'auth_action_label_read_chat_message'),
                 'reply_to_chat_message' => $language->text('mailbox', 'auth_action_label_reply_to_chat_message'),

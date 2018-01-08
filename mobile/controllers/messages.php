@@ -244,6 +244,25 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
 
             if (!empty($files))
             {
+                $text  = OW::getLanguage()->text('mailbox', 'attachment');
+
+                $event = new OW_Event('mailbox.before_send_message', array(
+                    'senderId' => $userId,
+                    'recipientId' => $_POST['opponentId'],
+                    'conversationId' => $conversationId,
+                    'message' => $text,
+                    'attachments' => $files
+                ), ['result' => true, 'error' => '', 'message' => $text]);
+
+                OW::getEventManager()->trigger($event);
+
+                $data = $event->getData();
+
+                if ( !$data['result'] )
+                {
+                    $this->echoOut($data);
+                }
+
                 $conversation = $conversationService->getConversation($conversationId);
                 try
                 {

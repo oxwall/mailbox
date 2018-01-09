@@ -129,7 +129,7 @@ class MAILBOX_CTRL_Ajax extends OW_ActionController
                         'message' => OW::getLanguage()->text('mailbox', 'user_is_not_authorized_chat', array('username' => BOL_UserService::getInstance()->getDisplayName($user->getId()))),
                         'type' => 'warning'
                     );
-                    exit(json_encode(update));
+                    exit(json_encode($info));
                 }
             }
 

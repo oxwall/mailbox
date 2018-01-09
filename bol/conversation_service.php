@@ -1038,7 +1038,7 @@ final class MAILBOX_BOL_ConversationService
 
         $text = trim($text);
 
-        if ( empty($text) )
+        if ( 0 === mb_strlen($text) )
         {
             throw new InvalidArgumentException("Empty string params were provided!");
         }

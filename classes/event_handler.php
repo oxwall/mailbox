@@ -924,7 +924,11 @@ class MAILBOX_CLASS_EventHandler
                 'conversationId' => $conversationId,
                 'message' => $text,
                 'attachments' => $files
-            ), ['result' => true, 'error' => '', 'message' => $text]);
+            ), array(
+                'result' => true,
+                'error' => '',
+                'message' => $text
+            ));
 
             OW::getEventManager()->trigger($event);
 

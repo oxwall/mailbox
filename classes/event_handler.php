@@ -911,15 +911,39 @@ class MAILBOX_CLASS_EventHandler
 
         $conversationId = $uidParams[2];
         $userId = OW::getUser()->getId();
-//        $opponentId = $uidParams[3];
+        $opponentId = $uidParams[3];
 
         $files = $params['files'];
+        $text  = OW::getLanguage()->text('mailbox', 'attachment');
+
         if (!empty($files))
         {
+            $event = new OW_Event('mailbox.before_send_message', array(
+                'senderId' => $userId,
+                'recipientId' => $opponentId,
+                'conversationId' => $conversationId,
+                'message' => $text,
+                'attachments' => $files
+            ), array(
+                'result' => true,
+                'error' => '',
+                'message' => $text
+            ));
+
+            OW::getEventManager()->trigger($event);
+
+            $data = $event->getData();
+
+            if ( !$data['result'] )
+            {
+                $respondArr = array('result' => false, 'message' => $data['error'], 'noData' => true);
+                exit("<script>if(parent.window.owFileAttachments['" . $params['uid'] . "']){parent.window.owFileAttachments['" . $params['uid'] . "'].updateItems(" . json_encode($respondArr) . ");}</script>");
+            }
+
             $conversation = $this->service->getConversation($conversationId);
             try
             {
-                $message = $this->service->createMessage($conversation, $userId, OW::getLanguage()->text('mailbox', 'attachment'));
+                $message = $this->service->createMessage($conversation, $userId, $text);
                 $this->service->addMessageAttachments($message->id, $files);
             }
             catch(InvalidArgumentException $e)

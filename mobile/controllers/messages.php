@@ -73,7 +73,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
 
         $data = $conversationService->getConversationDataAndLog($conversationId, 0, 16);
 
-        $cmp = new MAILBOX_MCMP_ChatConversation($data);
+        $cmp = OW::getClassInstance('MAILBOX_MCMP_ChatConversation', $data);
 
         $this->addComponent('cmp', $cmp);
     }

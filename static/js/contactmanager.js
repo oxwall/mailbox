@@ -2771,7 +2771,7 @@ OWMailbox.Dialog.Controller.prototype = {
                     messageContainer.html(tmpMessageContainer.html());
                 }
 
-                $('#dialogMessageText', messageContainer).html( html );
+                $('#dialogMessageText', messageContainer).text( html );
                 $('#dialogMessageText', messageContainer).autolink();
             }
         }
@@ -2867,7 +2867,7 @@ OWMailbox.Dialog.Controller.prototype = {
 //                html = htmlspecialchars(message.text, 'ENT_QUOTES');
                 html = message.text;
 
-                $('#dialogMessageText', messageContainer).html( html );
+                $('#dialogMessageText', messageContainer).text( html );
                 $('#dialogMessageText', messageContainer).autolink();
             }
         }

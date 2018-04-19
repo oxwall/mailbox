@@ -129,6 +129,7 @@ class MAILBOX_BOL_AjaxService {
                     }
                 }
                 
+                $params['text'] = htmlentities($params['text'], ENT_QUOTES);
                 $params['text'] = nl2br($params['text']);
 
                 break;

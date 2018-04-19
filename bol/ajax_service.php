@@ -128,7 +128,8 @@ class MAILBOX_BOL_AjaxService {
                         return array('error'=>$status['msg']);
                     }
                 }
-                $params['text'] = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($params['text']));
+                
+                $params['text'] = htmlentities($params['text'], ENT_QUOTES);
                 $params['text'] = nl2br($params['text']);
 
                 break;

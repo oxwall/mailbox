@@ -204,6 +204,21 @@ class MAILBOX_BOL_AjaxService {
             BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
         }
 
+        $event = new OW_Event('mailbox.after_send_message', array(
+            'senderId' => $userId,
+            'recipientId' => $opponentId,
+            'conversationId' => $conversation->id,
+            'message' => $params['text']
+        ), array('result' => true, 'error' => '', 'message' => $params['text'] ));
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        if ( !$data['result'] )
+        {
+            return $data;
+        }
+
         $item = $conversationService->getMessageData($message);
 
         return array('message'=>$item);

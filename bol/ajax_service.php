@@ -208,8 +208,8 @@ class MAILBOX_BOL_AjaxService {
             'senderId' => $userId,
             'recipientId' => $opponentId,
             'conversationId' => $conversation->id,
-            'message' => $params['text']
-        ), array('result' => true, 'error' => '', 'message' => $params['text'] ));
+            'message' => $text
+        ), array('result' => true, 'error' => '', 'message' => $text ));
         OW::getEventManager()->trigger($event);
 
         $data = $event->getData();

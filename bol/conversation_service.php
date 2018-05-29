@@ -1059,7 +1059,7 @@ final class MAILBOX_BOL_ConversationService
 
         if ( $lastMessage === null )
         {
-            $lastMessage = new MAILBOX_BOL_LastMessage();
+            $lastMessage = OW::getClassInstance('MAILBOX_BOL_LastMessage');
             $lastMessage->conversationId = $conversation->id;
         }
 

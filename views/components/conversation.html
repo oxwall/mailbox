@@ -72,12 +72,15 @@
     </div>
     {/if}
 
+    <div id="emojiContainer"></div>
+
     {if $isAuthorizedReplyToChatMessage}
     <!-- Chat mode -->
     <div class="ow_chat_message_block ow_hidden" id="conversationChatFormBlock">
         <div class="ow_chat_message" id="dialogMessageFormBlock">
             <span class="ow_attachment_icons">
                 <div class="ow_attachments clearfix">
+                    <div class="ow_emoji_button" id="dialogEmojiBtn"></div>
                     <a class="attach" href="javascript://" id="dialogAttachmentsBtn"></a>
                 </div>
             </span>

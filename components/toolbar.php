@@ -262,6 +262,48 @@ class MAILBOX_CMP_Toolbar extends OW_Component
 
         OW::getDocument()->addOnloadScript($js, 3009);
 
+        // Add emojiPicker
+        $emojiLangKeys = array(
+            'emojipicker_category_recent',
+            'emojipicker_category_people',
+            'emojipicker_category_nature',
+            'emojipicker_category_food',
+            'emojipicker_category_activity',
+            'emojipicker_category_travel',
+            'emojipicker_category_object',
+            'emojipicker_category_symbol',
+            'emojipicker_category_flag',
+            'emojipicker_search',
+            'emojipicker_search_results',
+            'emojipicker_count_emojis'
+        );
+
+        $language = OW::getLanguage();
+        foreach ( $emojiLangKeys as $item ) {
+            $language->addKeyForJs('mailbox', $item);
+        }
+
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'jquery-emoji-picker-master/js/jquery.emojipicker.js', 'text/javascript', 3000);
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'jquery-emoji-picker-master/js/jquery.emojis.js', 'text/javascript', 3000);
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'emojiPicker.js', 'text/javascript', 3000);
+        OW::getDocument()->addStyleSheet( OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl().'jquery-emoji-picker-master/css/jquery.emojipicker.css' );
+
+        $jsEmojiPicker = "
+            $('#dialogTextarea').emojiPicker({
+                width: '300px',
+                height: '200px',
+                upper: 'outer',
+                container: '#emojiContainer',
+                button: false
+            });
+            
+            $(document).delegate('#dialogEmojiBtn', 'click', function(e) {
+                $('#dialogTextarea').emojiPicker('toggle');
+            });
+        ";
+
+        OW::getDocument()->addOnloadScript($jsEmojiPicker, 3010);
+
         return parent::render();
     }
 }

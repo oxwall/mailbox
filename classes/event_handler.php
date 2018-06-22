@@ -121,6 +121,7 @@ class MAILBOX_CLASS_EventHandler
         
         OW::getEventManager()->bind('base.after_avatar_update', array($this, 'onChangeUserAvatar'));
         OW::getEventManager()->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'onPluginsInitCheckUserStatus'));
+        OW::getEventManager()->bind(OW_EventManager::ON_FINALIZE, array($this, 'addEmojiPicker'));
     }
 
     public function init()
@@ -1471,6 +1472,16 @@ class MAILBOX_CLASS_EventHandler
                     OW::getRequestHandler()->addCatchAllRequestsExclude('base.email_verify', 'MAILBOX_CTRL_Mailbox', 'convs');
                 }
             }
+        }
+    }
+
+    /**
+     * Add emoji picker
+     */
+    public function addEmojiPicker()
+    {
+        if ( OW::getUser()->isAdmin() ) {
+            OW::getDocument()->addScriptDeclaration(UTIL_JsGenerator::composeJsString("OW.bind('mailbox.after_dialog_render', addEmojiPicker)"));
         }
     }
 }

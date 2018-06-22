@@ -52,7 +52,7 @@ body .ow_mailbox_left_loading .ow_mailbox_conv_options{
     width: 36% !important;
     bottom: 0;
     overflow-y: auto;
-    padding-top:
+    /*padding-top:*/
 }
 .ow_mailbox_left.ow_mailbox_bulk_options .ow_mailbox_left_body {
     top: 99px;
@@ -699,4 +699,22 @@ body .ow_mailbox_form.active .ow_mailbox_message_input textarea {
 }
 .ow_mailchat_new_message .ow_chat_mailchat_inputarea .input_ws_cont {
     padding: 28px 4px 4px 4px;
+}
+
+.ow_emoji_button {
+    background-image: url("data:image/png;base64,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");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.8;
+    margin: 2px 6px 0 0;
+    width: 20px;
+    height: 20px;
+    float: left;
+}
+.ow_emoji_button:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+.ow_chat_message_block .ow_chat_message textarea {
+    padding-right: 64px;
 }

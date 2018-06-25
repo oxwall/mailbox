@@ -64,7 +64,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_conversation` (
   KEY `interlocutorId` (`interlocutorId`),
   KEY `lastMessageTimestamp` (`lastMessageTimestamp`),
   KEY `subject` (`subject`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8";
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci";
 
 OW::getDbo()->query($sql);
 
@@ -75,7 +75,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_last_message` (
   `interlocutorMessageId` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `conversationId` (`conversationId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci AUTO_INCREMENT=1";
 
 OW::getDbo()->query($sql);
 
@@ -93,7 +93,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_message` (
   KEY `senderId` (`senderId`),
   KEY `recipientId` (`recipientId`),
   KEY `conversationId` (`conversationId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci AUTO_INCREMENT=1";
 
 OW::getDbo()->query($sql);
 
@@ -105,19 +105,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_attachment` (
   `fileSize` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `messageId` (`messageId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
-
-OW::getDbo()->query($sql);
-
-$sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_attachment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `messageId` int(11) NOT NULL,
-  `hash` varchar(13) NOT NULL,
-  `fileName` varchar(255) NOT NULL,
-  `fileSize` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `messageId` (`messageId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci AUTO_INCREMENT=1";
 
 OW::getDbo()->query($sql);
 
@@ -127,7 +115,7 @@ $sql = "CREATE TABLE `" . OW_DB_PREFIX . "mailbox_user_last_data` (
   `data` longtext,
   PRIMARY KEY (`id`),
   KEY `userId` (`userId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8";
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci";
 
 OW::getDbo()->query($sql);
 

@@ -44,6 +44,8 @@ final class MAILBOX_BOL_ConversationService
     const EVENT_DELETE_CONVERSATION = 'mailbox.delete_conversation';
     const EVENT_ON_BEFORE_GET_CONSOLE_CONVERSATION_LIST = 'mailbox.get_console_conversation_list';
     const EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID = 'mailbox.get_conversation_list_by_user_id';
+    const GET_CONVERSATION_MESSAGES_LIST = 'mailbox.get_conversation_messages_list';
+    const GET_MESSAGE_DATA_FOR_LIST = 'mailbox.get_message_data_for_list';
 
     const MARK_TYPE_READ = 'read';
     const MARK_TYPE_UNREAD = 'unread';
@@ -479,6 +481,14 @@ final class MAILBOX_BOL_ConversationService
         {
             $list[] = $this->getMessageData($message, $attachmentsByMessageList);
         }
+
+        $event = new OW_Event(
+            self::GET_CONVERSATION_MESSAGES_LIST,
+            array('conversationId' => $conversationId),
+            $list
+        );
+        OW::getEventManager()->trigger($event);
+        $list = $event->getData();
 
         return $list;
     }
@@ -1894,6 +1904,7 @@ final class MAILBOX_BOL_ConversationService
 
             $shortUserData = $this->getFields(array($opponentId));
             $item['shortUserData'] = $shortUserData[$opponentId];
+            $item['recipientRead'] = $conversation['recipientRead'];
 
             if ( (int)$conversation['initiatorId'] == OW::getUser()->getId() )
             {
@@ -2498,6 +2509,15 @@ final class MAILBOX_BOL_ConversationService
                     }
                 }
             }
+
+            $event = new OW_Event(
+                self::GET_MESSAGE_DATA_FOR_LIST,
+                array(),
+                $messageList
+            );
+            OW::getEventManager()->trigger($event);
+            $messageList = $event->getData();
+
             $result['messageList'] = $messageList;
             $result['newMessageCount'] = array('all'=>count($conversations), 'new'=>(int)$notViewedConversations);
         }

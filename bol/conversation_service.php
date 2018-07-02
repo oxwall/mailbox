@@ -44,8 +44,8 @@ final class MAILBOX_BOL_ConversationService
     const EVENT_DELETE_CONVERSATION = 'mailbox.delete_conversation';
     const EVENT_ON_BEFORE_GET_CONSOLE_CONVERSATION_LIST = 'mailbox.get_console_conversation_list';
     const EVENT_ON_BEFORE_GET_CONVERSATION_LIST_BY_USER_ID = 'mailbox.get_conversation_list_by_user_id';
-    const GET_CONVERSATION_MESSAGES_LIST = 'mailbox.get_conversation_messages_list';
-    const GET_MESSAGE_DATA_FOR_LIST = 'mailbox.get_message_data_for_list';
+    const EVENT_GET_CONVERSATION_MESSAGES_LIST = 'mailbox.get_conversation_messages_list';
+    const EVENT_GET_MESSAGE_DATA_FOR_LIST = 'mailbox.get_message_data_for_list';
 
     const MARK_TYPE_READ = 'read';
     const MARK_TYPE_UNREAD = 'unread';
@@ -483,7 +483,7 @@ final class MAILBOX_BOL_ConversationService
         }
 
         $event = new OW_Event(
-            self::GET_CONVERSATION_MESSAGES_LIST,
+            self::EVENT_GET_CONVERSATION_MESSAGES_LIST,
             array('conversationId' => $conversationId),
             $list
         );
@@ -2511,7 +2511,7 @@ final class MAILBOX_BOL_ConversationService
             }
 
             $event = new OW_Event(
-                self::GET_MESSAGE_DATA_FOR_LIST,
+                self::EVENT_GET_MESSAGE_DATA_FOR_LIST,
                 array(),
                 $messageList
             );

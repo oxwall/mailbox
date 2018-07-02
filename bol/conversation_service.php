@@ -482,11 +482,7 @@ final class MAILBOX_BOL_ConversationService
             $list[] = $this->getMessageData($message, $attachmentsByMessageList);
         }
 
-        $event = new OW_Event(
-            self::EVENT_GET_CONVERSATION_MESSAGES_LIST,
-            array('conversationId' => $conversationId),
-            $list
-        );
+        $event = new OW_Event(self::EVENT_GET_CONVERSATION_MESSAGES_LIST, array('conversationId' => $conversationId), $list);
         OW::getEventManager()->trigger($event);
         $list = $event->getData();
 
@@ -2510,11 +2506,7 @@ final class MAILBOX_BOL_ConversationService
                 }
             }
 
-            $event = new OW_Event(
-                self::EVENT_GET_MESSAGE_DATA_FOR_LIST,
-                array(),
-                $messageList
-            );
+            $event = new OW_Event(self::EVENT_GET_MESSAGE_DATA_FOR_LIST, array(), $messageList);
             OW::getEventManager()->trigger($event);
             $messageList = $event->getData();
 

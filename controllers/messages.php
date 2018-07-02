@@ -67,7 +67,7 @@ class MAILBOX_CTRL_Messages extends OW_ActionController
         $listParams['activeModeList'] = $conversationService->getActiveModeList();
 
         //Conversation list
-        $conversationList = new MAILBOX_CMP_ConversationList($listParams);
+        $conversationList = OW::getClassInstance('MAILBOX_CMP_ConversationList', $listParams);
         $this->addComponent('conversationList', $conversationList);
 
         $conversationContainer = OW::getClassInstance('MAILBOX_CMP_Conversation');

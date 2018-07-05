@@ -912,7 +912,13 @@ class MAILBOX_CLASS_EventHandler
 
         $conversationId = $uidParams[2];
         $userId = OW::getUser()->getId();
+
         $opponentId = $uidParams[3];
+
+        if( empty($conversationId) )
+        {
+            $conversationId = $this->service->getChatConversationIdWithUserById($userId, $opponentId);
+        }
 
         $files = $params['files'];
         $text  = OW::getLanguage()->text('mailbox', 'attachment');
@@ -942,6 +948,7 @@ class MAILBOX_CLASS_EventHandler
             }
 
             $conversation = $this->service->getConversation($conversationId);
+
             try
             {
                 $message = $this->service->createMessage($conversation, $userId, $text);

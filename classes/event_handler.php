@@ -815,6 +815,7 @@ class MAILBOX_CLASS_EventHandler
         //mailbox_dialog_{convId}_{opponentId}_{hash}
         $uidParams = explode('_', $params['uid']);
 
+
         if (count($uidParams) != 5)
         {
             return;
@@ -831,6 +832,12 @@ class MAILBOX_CLASS_EventHandler
         }
 
         $conversationId = $uidParams[2];
+
+        if( empty($conversationId) )
+        {
+            $conversationId = $this->service->getChatConversationIdWithUserById(OW::getUser()->getId(), $uidParams[3]);
+        }
+
         $userId = OW::getUser()->getId();
 //        $opponentId = $uidParams[3];
 
@@ -838,6 +845,7 @@ class MAILBOX_CLASS_EventHandler
         if (!empty($files))
         {
             $conversation = $this->service->getConversation($conversationId);
+
             try
             {
                 $message = $this->service->createMessage($conversation, $userId, OW::getLanguage()->text('mailbox', 'attachment'));

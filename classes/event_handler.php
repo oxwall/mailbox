@@ -121,10 +121,13 @@ class MAILBOX_CLASS_EventHandler
         
         OW::getEventManager()->bind('base.after_avatar_update', array($this, 'onChangeUserAvatar'));
         OW::getEventManager()->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'onPluginsInitCheckUserStatus'));
+        OW::getEventManager()->bind(OW_EventManager::ON_FINALIZE, array($this, 'addEmojiPicker'));
     }
 
     public function init()
     {
+        OW::getEventManager()->bind(BASE_CMP_ProfileActionToolbar::EVENT_NAME, array($this, 'sendMessageActionTool'));
+
         OW::getEventManager()->bind('notifications.collect_actions', array($this, 'onNotifyActions'));
         OW::getEventManager()->bind('mailbox.send_message', array($this, 'onSendMessage'));
         OW::getEventManager()->bind('base.on_avatar_toolbar_collect', array($this, 'onAvatarToolbarCollect'));
@@ -247,6 +250,83 @@ class MAILBOX_CLASS_EventHandler
                 OW::getConfig()->saveConfig('mailbox', 'install_complete', 1);
 
             }
+        }
+    }
+
+    public function sendMessageActionTool( BASE_CLASS_EventCollector $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['userId']) )
+        {
+            return;
+        }
+
+        $userId = (int) $params['userId'];
+
+        if ( OW::getUser()->getId() == $userId )
+        {
+            return;
+        }
+
+        if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $params['userId']) )
+        {
+            return;
+        }
+
+        $eventParams = array(
+            'action' => 'mailbox_invite_to_chat',
+            'ownerId' => $params['userId'],
+            'viewerId' => OW::getUser()->getId()
+        );
+
+        try
+        {
+            OW::getEventManager()->getInstance()->call('privacy_check_permission', $eventParams);
+        }
+        catch ( RedirectException $e )
+        {
+            return;
+        }
+
+        $isAuthorizedSendMessage = OW::getUser()->isAuthorized('mailbox', 'send_chat_message');
+
+        $showSendMessageButton = true;
+
+        if ( !$isAuthorizedSendMessage )
+        {
+            // check the promotion status
+            $promotedStatus = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'send_chat_message', array(
+                'userId' => OW::getUser()->getId()
+            ));
+
+            $isPromoted = !empty($promotedStatus['status'])
+                && $promotedStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED;
+
+            $showSendMessageButton = $isPromoted;
+        }
+
+        if ( $showSendMessageButton )
+        {
+            $linkId = 'mb' . rand(10, 1000000);
+            $linkSelector = '#' . $linkId;
+            $script = UTIL_JsGenerator::composeJsString('$({$linkSelector}).click(function(){
+
+                OW.trigger("base.online_now_click", [{$userId}]);
+
+            });', array('linkSelector'=>$linkSelector, 'userId'=>$params['userId']));
+
+            OW::getDocument()->addOnloadScript($script);
+
+            $resultArray = array(
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LABEL => OW::getLanguage()->text('mailbox', 'send_chat_message'),
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => 'javascript://',
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => "mailbox.send_chat_message",
+                BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 0
+            );
+
+            $event->add($resultArray);
         }
     }
 
@@ -833,21 +913,45 @@ class MAILBOX_CLASS_EventHandler
         $conversationId = $uidParams[2];
         $userId = OW::getUser()->getId();
 
+        $opponentId = $uidParams[3];
+
         if( empty($conversationId) )
         {
-            $opponentId = $uidParams[3];
-
             $conversationId = $this->service->getChatConversationIdWithUserById($userId, $opponentId);
         }
 
         $files = $params['files'];
+        $text  = OW::getLanguage()->text('mailbox', 'attachment');
+
         if (!empty($files))
         {
+            $event = new OW_Event('mailbox.before_send_message', array(
+                'senderId' => $userId,
+                'recipientId' => $opponentId,
+                'conversationId' => $conversationId,
+                'message' => $text,
+                'attachments' => $files
+            ), array(
+                'result' => true,
+                'error' => '',
+                'message' => $text
+            ));
+
+            OW::getEventManager()->trigger($event);
+
+            $data = $event->getData();
+
+            if ( !$data['result'] )
+            {
+                $respondArr = array('result' => false, 'message' => $data['error'], 'noData' => true);
+                exit("<script>if(parent.window.owFileAttachments['" . $params['uid'] . "']){parent.window.owFileAttachments['" . $params['uid'] . "'].updateItems(" . json_encode($respondArr) . ");}</script>");
+            }
+
             $conversation = $this->service->getConversation($conversationId);
 
             try
             {
-                $message = $this->service->createMessage($conversation, $userId, OW::getLanguage()->text('mailbox', 'attachment'));
+                $message = $this->service->createMessage($conversation, $userId, $text);
                 $this->service->addMessageAttachments($message->id, $files);
             }
             catch(InvalidArgumentException $e)
@@ -1375,6 +1479,59 @@ class MAILBOX_CLASS_EventHandler
                     OW::getRequestHandler()->addCatchAllRequestsExclude('base.email_verify', 'MAILBOX_CTRL_Mailbox', 'convs');
                 }
             }
+        }
+    }
+
+    /**
+     * Add emoji picker
+     */
+    public function addEmojiPicker()
+    {
+        if ( OW::getUser() )
+        {
+            $language = OW::getLanguage();
+            $emojiLangKeys = array(
+                'emojipicker_category_recent',
+                'emojipicker_category_people',
+                'emojipicker_category_nature',
+                'emojipicker_category_food',
+                'emojipicker_category_activity',
+                'emojipicker_category_travel',
+                'emojipicker_category_object',
+                'emojipicker_category_symbol',
+                'emojipicker_category_flag',
+                'emojipicker_search',
+                'emojipicker_search_results',
+                'emojipicker_count_emojis'
+            );
+
+            foreach ( $emojiLangKeys as $item )
+            {
+                $language->addKeyForJs('mailbox', $item);
+            }
+
+            OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'jquery-emoji-picker-master/js/jquery.emojipicker.js', 'text/javascript', 3000);
+            OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'jquery-emoji-picker-master/js/jquery.emojis.js', 'text/javascript', 3000);
+            OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl() . 'emojiPicker.js', 'text/javascript', 3000);
+            OW::getDocument()->addStyleSheet( OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl().'jquery-emoji-picker-master/css/jquery.emojipicker.css' );
+
+            $jsEmojiPicker = "
+            $('#dialogTextarea').emojiPicker({
+                width: '300px',
+                height: '200px',
+                upper: 'outer',
+                container: '#emojiContainer',
+                button: false
+            });
+            
+            $(document).delegate('#dialogEmojiBtn', 'click', function(e) {
+                $('#dialogTextarea').emojiPicker('toggle');
+            });
+        ";
+
+            OW::getDocument()->addOnloadScript($jsEmojiPicker, 3010);
+
+            OW::getDocument()->addScriptDeclaration(UTIL_JsGenerator::composeJsString("OW.bind('mailbox.after_dialog_render', addEmojiPicker)"));
         }
     }
 }

@@ -73,7 +73,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
 
         $data = $conversationService->getConversationDataAndLog($conversationId, 0, 16);
 
-        $cmp = new MAILBOX_MCMP_ChatConversation($data);
+        $cmp = OW::getClassInstance('MAILBOX_MCMP_ChatConversation', $data);
 
         $this->addComponent('cmp', $cmp);
     }
@@ -263,6 +263,29 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
 
             if (!empty($files))
             {
+                $text  = OW::getLanguage()->text('mailbox', 'attachment');
+
+                $event = new OW_Event('mailbox.before_send_message', array(
+                    'senderId' => $userId,
+                    'recipientId' => $_POST['opponentId'],
+                    'conversationId' => $conversationId,
+                    'message' => $text,
+                    'attachments' => $files
+                ), array(
+                    'result' => true,
+                    'error' => '',
+                    'message' => $text
+                ));
+
+                OW::getEventManager()->trigger($event);
+
+                $data = $event->getData();
+
+                if ( !$data['result'] )
+                {
+                    $this->echoOut($data);
+                }
+
                 $conversation = $conversationService->getConversation($conversationId);
                 try
                 {

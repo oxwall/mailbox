@@ -29,4 +29,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-Updater::getConfigService()->addConfig('mailbox', 'updated_to_chat_only', 0, '');
+if( !Updater::getConfigService()->configExists('mailbox', 'updated_to_chat_only') )
+{
+    Updater::getConfigService()->addConfig('mailbox', 'updated_to_chat_only', 0, '');
+}

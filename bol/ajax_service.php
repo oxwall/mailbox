@@ -128,7 +128,8 @@ class MAILBOX_BOL_AjaxService {
                         return array('error'=>$status['msg']);
                     }
                 }
-                $params['text'] = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($params['text']));
+                
+                $params['text'] = htmlentities($params['text'], ENT_QUOTES);
                 $params['text'] = nl2br($params['text']);
 
                 break;
@@ -201,6 +202,21 @@ class MAILBOX_BOL_AjaxService {
         if (!empty($actionName))
         {
             BOL_AuthorizationService::getInstance()->trackAction('mailbox', $actionName);
+        }
+
+        $event = new OW_Event('mailbox.after_send_message', array(
+            'senderId' => $userId,
+            'recipientId' => $opponentId,
+            'conversationId' => $conversation->id,
+            'message' => $text
+        ), array('result' => true, 'error' => '', 'message' => $text ));
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        if ( !$data['result'] )
+        {
+            return $data;
         }
 
         $item = $conversationService->getMessageData($message);

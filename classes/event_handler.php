@@ -55,7 +55,8 @@ class MAILBOX_CLASS_EventHandler
     public function genericInit()
     {
         OW::getEventManager()->bind('ads.enabled_plugins', array($this, 'mailboxAdsEnabled'));
-
+        OW::getEventManager()->bind('notifications.collect_actions', array($this, 'onNotifyActions'));
+        
         $credits = new MAILBOX_CLASS_Credits();
         OW::getEventManager()->bind('usercredits.on_action_collect', array($credits, 'bindCreditActionsCollect'));
 
@@ -128,7 +129,7 @@ class MAILBOX_CLASS_EventHandler
     {
         OW::getEventManager()->bind(BASE_CMP_ProfileActionToolbar::EVENT_NAME, array($this, 'sendMessageActionTool'));
 
-        OW::getEventManager()->bind('notifications.collect_actions', array($this, 'onNotifyActions'));
+        
         OW::getEventManager()->bind('mailbox.send_message', array($this, 'onSendMessage'));
         OW::getEventManager()->bind('base.on_avatar_toolbar_collect', array($this, 'onAvatarToolbarCollect'));
 

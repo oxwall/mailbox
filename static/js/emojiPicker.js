@@ -1,7 +1,7 @@
 function addEmojiPicker(params) {
     $(params.control).find(".ow_attachments.clearfix").prepend(
         "<div class='ow_emoji_button' id='dialogEmojiBtn'></div>"
-    ).click(function (e) {
+    ).find('#dialogEmojiBtn').click(function (e) {
         if ($(this).parents(".ow_chat_dialog").hasClass("ow_chat_dialog_active")) {
             e.stopPropagation();
         }

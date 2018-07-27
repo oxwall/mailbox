@@ -849,7 +849,7 @@ final class MAILBOX_BOL_ConversationService
      *
      * @throws InvalidArgumentException
      */
-    public function createMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false )
+    public function createMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false, $tempId = null )
     {
         if ( empty($senderId) )
         {
@@ -874,7 +874,7 @@ final class MAILBOX_BOL_ConversationService
         $senderId = (int) $senderId;
         $recipientId = ($senderId == $conversation->initiatorId) ? $conversation->interlocutorId : $conversation->initiatorId;
 
-        $message = $this->addMessage($conversation, $senderId, $text, $isSystem);
+        $message = $this->addMessage($conversation, $senderId, $text, $isSystem, $tempId);
 
         $event = new OW_Event('mailbox.send_message', array(
             'senderId' => $senderId,
@@ -1017,7 +1017,7 @@ final class MAILBOX_BOL_ConversationService
      *
      * @throws InvalidArgumentException
      */
-    public function addMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false )
+    public function addMessage( MAILBOX_BOL_Conversation $conversation, $senderId, $text, $isSystem = false, $tempId = null )
     {
         if ( empty($senderId) )
         {
@@ -1057,6 +1057,7 @@ final class MAILBOX_BOL_ConversationService
         $message->text = $text;
         $message->timeStamp = time();
         $message->isSystem = $isSystem;
+        $message->tempId = $tempId;
 
         $this->messageDao->save($message);
 

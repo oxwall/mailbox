@@ -89,6 +89,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_message` (
   `recipientRead` TINYINT NOT NULL DEFAULT '0',
   `isSystem` TINYINT NOT NULL DEFAULT  '0',
   `wasAuthorized` TINYINT NOT NULL DEFAULT  '0',
+  `tempId` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `senderId` (`senderId`),
   KEY `recipientId` (`recipientId`),

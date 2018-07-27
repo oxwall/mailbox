@@ -71,4 +71,8 @@ class MAILBOX_BOL_Message extends OW_Entity
      * @var integer
      */
     public $wasAuthorized = 0;
+    /**
+     * @var string
+     */     
+    public $tempId = null;
 }

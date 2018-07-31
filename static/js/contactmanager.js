@@ -2211,7 +2211,7 @@ OWMailbox.Dialog.Controller.prototype = {
 
         this.attachmentsBtn = $('#dialogAttachmentsBtn', this.control);
 
-        OW.trigger('mailbox.after_dialog_render', [{'control' : this.control, 'opponentId' : this.model.opponentId}]);
+        OW.trigger('mailbox.after_dialog_render', [{'control' : this.control, 'convId' : this.model.convId, 'opponentId' : this.model.opponentId}]);
 
     },
 

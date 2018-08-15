@@ -83,6 +83,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_message` (
   `id` int(10) NOT NULL auto_increment,
   `conversationId` int(10) NOT NULL default '0',
   `timeStamp` bigint(10) NOT NULL default '0',
+  `updateStamp` bigint(10) NOT NULL default '0',
   `senderId` int(10) NOT NULL default '0',
   `recipientId` int(10) NOT NULL default '0',
   `text` mediumtext NOT NULL,
@@ -93,7 +94,9 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_message` (
   PRIMARY KEY  (`id`),
   KEY `senderId` (`senderId`),
   KEY `recipientId` (`recipientId`),
-  KEY `conversationId` (`conversationId`)
+  KEY `conversationId` (`conversationId`),
+  KEY `timeStamp` (`timeStamp`),
+  KEY `updateStamp` (`updateStamp`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci AUTO_INCREMENT=1";
 
 OW::getDbo()->query($sql);

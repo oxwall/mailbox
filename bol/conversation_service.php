@@ -238,6 +238,7 @@ final class MAILBOX_BOL_ConversationService
         }
 
         $message->recipientRead = 1;
+        $message->updateStamp = time();
         $this->messageDao->save($message);
 
         return true;
@@ -1055,7 +1056,7 @@ final class MAILBOX_BOL_ConversationService
         $message->senderId = $senderId;
         $message->recipientId = $recipientId;
         $message->text = $text;
-        $message->timeStamp = time();
+        $message->updateStamp = $message->timeStamp = time();
         $message->isSystem = $isSystem;
         $message->tempId = $tempId;
 

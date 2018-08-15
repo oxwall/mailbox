@@ -50,6 +50,10 @@ class MAILBOX_BOL_Message extends OW_Entity
     /**
      * @var integer
      */
+    public $updateStamp;
+    /**
+     * @var integer
+     */
     public $senderId;
     /**
      * @var integer

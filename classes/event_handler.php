@@ -982,7 +982,7 @@ class MAILBOX_CLASS_EventHandler
     {
         if (OW::getUser()->isAuthenticated())
         {
-            $item = new MAILBOX_CMP_ConsoleMailbox();
+            $item = OW::getClassInstance('MAILBOX_CMP_ConsoleMailbox');
             $event->addItem($item, 4);
         }
     }

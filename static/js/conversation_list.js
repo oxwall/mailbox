@@ -1426,7 +1426,7 @@ MAILBOX_ConversationView = function () {
         if (self.model.convId){
             var conversation = OW.Mailbox.conversationsCollection.findWhere({conversationId: self.model.convId});
             if (conversation){
-                //self.profileUrlControl.attr('title', conversation.get('shortUserData'));
+                self.profileUrlControl.attr('title', conversation.get('shortUserData'));
                 OW.bindTips(self.control);
             }
         }

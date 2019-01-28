@@ -162,9 +162,9 @@ MAILBOX_ContactView = Backbone.View.extend({
     render: function(){
 
         this.displayNameControl.html(this.model.get('displayName'));
-        //this.avatarUrlControl.attr('src', this.model.get('avatarUrl'));
-        //this.avatarUrlControl.attr('alt', this.model.get('displayName'));
-        //this.avatarUrlControl.attr('title', this.model.get('shortUserData'));
+        this.avatarUrlControl.attr('src', this.model.get('avatarUrl'));
+        this.avatarUrlControl.attr('alt', this.model.get('displayName'));
+        this.avatarUrlControl.attr('title', this.model.get('shortUserData'));
         this.$el.addClass(this.model.get('status'));
 
         this.hide();
@@ -1187,7 +1187,7 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
 
         if (self.model.get('showOnlineOnly')){
             $('#mailboxSortUsersPreference span').addClass('ow_btn_sort_online');
-            //$('#mailboxSortUsersPreference').attr('title', OW.getLanguageText('mailbox', 'show_all_users'));
+            $('#mailboxSortUsersPreference').attr('title', OW.getLanguageText('mailbox', 'show_all_users'));
             self.contactListWrapper.removeClass('showAllUsers');
             self.contactListWrapper.addClass('showOnlineOnly');
             this.onOnlineCounterUpdate();
@@ -1726,8 +1726,8 @@ OWMailbox.Dialog.Controller = function(model){
     });
 
     this.model.displayNameSetSubject.addObserver(function(){
-        //self.avatarControl.attr('alt', self.model.displayName);
-        //self.avatarControl.attr('title', self.model.shortUserData);
+        self.avatarControl.attr('alt', self.model.displayName);
+        self.avatarControl.attr('title', self.model.shortUserData);
         OW.bindTips(self.control);
         self.displayNameControl.html(self.model.displayName);
         self.chatSelectorDisplayNameControl.html(self.model.displayName);

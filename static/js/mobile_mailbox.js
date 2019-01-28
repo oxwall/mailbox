@@ -1198,8 +1198,8 @@ MAILBOX_ConversationView = Backbone.View.extend({
 
     render: function(){
         $('.owm_avatar img', this.el).attr('src', this.model.get('avatarUrl'));
-        //$('.owm_avatar img', this.el).attr('title', this.model.get('displayName'));
-        //$('.owm_avatar img', this.el).attr('alt', this.model.get('displayName'));
+        $('.owm_avatar img', this.el).attr('title', this.model.get('displayName'));
+        $('.owm_avatar img', this.el).attr('alt', this.model.get('displayName'));
         $('.owm_avatar a', this.el).attr('href', this.model.get('profileUrl'));
 
         $('#mailboxBackToConversations', this.el).attr('onclick', "location.href='"+this.model.get('profileUrl')+"'");

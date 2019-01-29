@@ -679,6 +679,22 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
             $(document).ready(function(){
                 self.searchFormElement = new SearchField("im_find_contact", "im_find_contact", OW.getLanguageText('mailbox', 'find_contact'));
                 self.searchFormElement.setHandler(self);
+
+                $('.ow_chat_list, .ow_chat_in_dialog_wrap').bind('mousewheel DOMMouseScroll', function(e) {
+                    var scrollTo = null;
+
+                    if (e.type == 'mousewheel') {
+                        scrollTo = (e.originalEvent.wheelDelta * -1);
+                    }
+                    else if (e.type == 'DOMMouseScroll') {
+                        scrollTo = 40 * e.originalEvent.detail;
+                    }
+
+                    if (scrollTo) {
+                        e.preventDefault();
+                        $(this).scrollTop(scrollTo + $(this).scrollTop());
+                    }
+                });
             });
 
             this.minimizeButton.click(function(e){
@@ -1451,6 +1467,22 @@ OWMailbox.Dialog.Controller = function(model){
 
     $('.ow_chat_in_dialog_wrap, .ow_chat_message_block', this.control).click(function( e ){
         self.model.setIsSelected(true);
+    });
+
+    $('.ow_chat_in_dialog_wrap').bind('mousewheel DOMMouseScroll', function(e) {
+        var scrollTo = null;
+
+        if (e.type == 'mousewheel') {
+            scrollTo = (e.originalEvent.wheelDelta * -1);
+        }
+        else if (e.type == 'DOMMouseScroll') {
+            scrollTo = 40 * e.originalEvent.detail;
+        }
+
+        if (scrollTo) {
+            e.preventDefault();
+            $(this).scrollTop(scrollTo + $(this).scrollTop());
+        }
     });
 
     this.minimizeMaximizeBtn.click(function(){

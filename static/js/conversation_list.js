@@ -408,6 +408,24 @@ MAILBOX_ConversationListView = Backbone.View.extend({
         $(document).ready(function(){
             self.searchFormElement = new SearchField("conversation_search", "conversation_search", OW.getLanguageText('mailbox', 'label_invitation_conversation_search'));
             self.searchFormElement.setHandler(self);
+
+            $('.ow_mailbox_log_wrap, .ow_mailbox_left_body').bind('mousewheel DOMMouseScroll', function(e) {
+                var scrollTo = null;
+
+                if (e.type == 'mousewheel') {
+                    scrollTo = (e.originalEvent.wheelDelta * -1);
+                }
+                else if (e.type == 'DOMMouseScroll') {
+                    scrollTo = 40 * e.originalEvent.detail;
+                }
+
+                if (scrollTo) {
+                    e.preventDefault();
+                    $(this).scrollTop(scrollTo + $(this).scrollTop());
+                }
+            });
+
+
         });
 
         this.conversationItemListWrapper.bind('jsp-scroll-y', function(event, scrollPositionY, isAtTop, isAtBottom){

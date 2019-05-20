@@ -380,9 +380,11 @@
         searchEmojiWrap.find('em').remove();
 
         $.each($.fn.emojiPicker.emojis, function(i, emoji) {
-          var shortcode = emoji.shortcode;
-          if ( shortcode.indexOf(searchTerm) > -1 ) {
-            results.push('<em><div class="emoji emoji-' + shortcode + '">' + emojiToText(shortcode) + '</div></em>');
+          if ( emoji.aliases[0] != undefined ) {
+              var shortcode = emoji.aliases[0];
+              if ( shortcode.indexOf(searchTerm) > -1 ) {
+                  results.push('<em><div class="emoji emoji-' + shortcode + '">' + emojiToText(shortcode) + '</div></em>');
+              }
           }
         });
         searchEmojiWrap.append(results.join(''));

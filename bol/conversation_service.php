@@ -884,7 +884,19 @@ final class MAILBOX_BOL_ConversationService
             'isSystem' => $isSystem,
             'message' => $text
         ), $message);
-        OW::getEventManager()->trigger($event);
+
+        try {
+            OW::getEventManager()->trigger($event);
+        } catch (Exception $e) {
+            // Do not crash if the event handler fails, log the exception instead.
+
+            OW::getLogger()->addEntry(
+                'mailbox.send_message handler error: "' . $e->getMessage() . "\"; stack trace:\n\n" . $e->getTraceAsString(),
+                'mailbox'
+            );
+
+            OW::getLogger()->writeLog();
+        }
 
         $this->resetUserLastData($senderId);
         $this->resetUserLastData($recipientId);

@@ -36,6 +36,11 @@
  * */
 class MAILBOX_CLASS_UserField extends InvitationFormElement
 {
+    public function __construct($name, $id = '')
+    {
+        parent::__construct($name, $id);
+    }
+
     /**
      * @see FormElement::renderInput()
      *

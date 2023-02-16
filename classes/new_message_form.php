@@ -36,6 +36,8 @@
  * */
 class MAILBOX_CLASS_NewMessageForm extends Form
 {
+    const PLUGIN_KEY = 'mailbox';
+
     const DISPLAY_CAPTCHA_TIMEOUT = 20;
 
     public $displayCapcha = false;
@@ -57,7 +59,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
 
         $this->setEnctype('multipart/form-data');
 
-        $subject = new TextField('subject');
+        $subject = new TextField('subject', self::PLUGIN_KEY);
 //        $subject->setHasInvitation(true);
 //        $subject->setInvitation($language->text('mailbox', 'subject'));
         $subject->addAttribute('placeholder', $language->text('mailbox', 'subject'));
@@ -75,7 +77,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         $validator = new StringValidator(1, MAILBOX_BOL_AjaxService::MAX_MESSAGE_TEXT_LENGTH);
         $validator->setErrorMessage($language->text('mailbox', 'message_too_long_error', array('maxLength' => MAILBOX_BOL_AjaxService::MAX_MESSAGE_TEXT_LENGTH)));
 
-        $textarea = OW::getClassInstance("MAILBOX_CLASS_Textarea", "message");
+        $textarea = OW::getClassInstanceArray("MAILBOX_CLASS_Textarea", ["message", self::PLUGIN_KEY]);
         
         /* @var $textarea MAILBOX_CLASS_Textarea */
         $textarea->addValidator($validator);
@@ -89,7 +91,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
 
         $this->addElement($textarea);
 
-        $user = OW::getClassInstance("MAILBOX_CLASS_UserField", "opponentId");
+        $user = OW::getClassInstanceArray("MAILBOX_CLASS_UserField", ["opponentId", self::PLUGIN_KEY]);
         
         /* @var $user MAILBOX_CLASS_UserField */
 //        $user->setHasInvitation(true);
@@ -111,7 +113,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
             OW::getSession()->set('mailbox.new_message_form_attachments_uid', $uidValue);
         }
 
-        $uid = new HiddenField('uid');
+        $uid = new HiddenField('uid', self::PLUGIN_KEY);
         $uid->setValue($uidValue);
         $this->addElement($uid);
 
@@ -123,7 +125,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
             $component->addComponent('attachments', $attachmentCmp);
         }
 
-        $submit = new Submit("send");
+        $submit = new Submit("send", self::PLUGIN_KEY);
         $submit->setValue($language->text('mailbox', 'send_button'));
 
         $this->addElement($submit);
@@ -196,7 +198,7 @@ class MAILBOX_CLASS_NewMessageForm extends Form
      *
      * @param MAILBOX_BOL_Conversation $conversation
      * @param int $userId
-     * @return boolean
+     * @return mixed
      */
     public function process()
     {

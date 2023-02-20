@@ -1,3 +1,6 @@
+# Version 1.9.0 (10800)
+- php 8 support
+
 # Version 1.8.3 (10600)
 - blocked users no longer show up in contact list
 - contact list search now displays results with partially typed-in names

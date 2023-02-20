@@ -36,6 +36,8 @@
  * */
 class MAILBOX_CMP_ConversationList extends OW_Component
 {
+    const PLUGIN_KEY = 'mailbox';
+
     public function __construct($params = array())
     {
         parent::__construct();
@@ -58,8 +60,8 @@ class MAILBOX_CMP_ConversationList extends OW_Component
 
         OW::getDocument()->addOnloadScript($js, 3009);
 
-        $conversationSearchForm = new Form('conversationSearchForm');
-        $search = new MAILBOX_CLASS_SearchField('conversation_search');
+        $conversationSearchForm = new Form('conversationSearchForm', self::PLUGIN_KEY);
+        $search = new MAILBOX_CLASS_SearchField('conversation_search', self::PLUGIN_KEY);
         $search->setHasInvitation(true);
         $search->setInvitation( OW::getLanguage()->text('mailbox', 'label_invitation_conversation_search') );
 

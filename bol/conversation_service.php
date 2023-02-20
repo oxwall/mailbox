@@ -2639,14 +2639,14 @@ final class MAILBOX_BOL_ConversationService
 
     public function getUserSettingsForm()
     {
-        $form = new Form('im_user_settings_form');
+        $form = new Form('im_user_settings_form', 'mailbox');
 
-        $findContact = new MAILBOX_CLASS_SearchField('im_find_contact');
+        $findContact = new MAILBOX_CLASS_SearchField('im_find_contact', 'mailbox');
         $findContact->setHasInvitation(true);
         $findContact->setInvitation(OW::getLanguage()->text('mailbox', 'find_contact'));
         $form->addElement($findContact);
 
-        $userIdHidden = new HiddenField('user_id');
+        $userIdHidden = new HiddenField('user_id', 'mailbox');
         $form->addElement($userIdHidden);
 
 

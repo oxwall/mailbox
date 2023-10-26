@@ -950,14 +950,32 @@ class MAILBOX_CLASS_EventHandler
 
             $conversation = $this->service->getConversation($conversationId);
 
-            try
-            {
-                $message = $this->service->createMessage($conversation, $userId, $text);
-                $this->service->addMessageAttachments($message->id, $files);
-            }
-            catch(InvalidArgumentException $e)
-            {
+            $firstMessage = $this->service->getFirstMessage($conversationId);
 
+            if (empty($firstMessage))
+            {
+                $actionName = 'send_chat_message';
+            }
+            else
+            {
+                $actionName = 'reply_to_chat_message';
+            }
+
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', $actionName);
+            $isAvailable = $status['status'] == BOL_AuthorizationService::STATUS_AVAILABLE;
+
+            if ($isAvailable) {
+                try
+                {
+                    $message = $this->service->createMessage($conversation, $userId, $text);
+                    $this->service->addMessageAttachments($message->id, $files);
+                }
+                catch(InvalidArgumentException $e) {}
+            } else {
+                echo
+                    '<script>
+                        alert("' . OW::getLanguage()->text('mailbox', $actionName.'_permission_denied') . '");
+                    </script>';
             }
         }
     }

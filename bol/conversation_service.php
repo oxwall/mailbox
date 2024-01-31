@@ -237,12 +237,12 @@ final class MAILBOX_BOL_ConversationService
             return false;
         }
 
+        $actionEvent = new OW_Event('mailbox.on_before_mark_message', [ 'message' => $message ]);
+        OW::getEventManager()->trigger($actionEvent);
+
         $message->recipientRead = 1;
         $message->updateStamp = time();
         $this->messageDao->save($message);
-
-        $actionEvent = new OW_Event('mailbox.on_after_mark_message', [ 'message' => $message ]);
-        OW::getEventManager()->trigger($actionEvent);
 
         return true;
     }
